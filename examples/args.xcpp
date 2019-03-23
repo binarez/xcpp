@@ -1,0 +1,11 @@
+#!xcpp.sh
+
+// Prints all command arguments
+int args( strings & arguments )
+{
+    for( string & arg : arguments )
+    {
+        println(arg);
+    }
+    return 0;
+}
