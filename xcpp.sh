@@ -12,9 +12,6 @@ using str = const char *;
 using strings = vector< string >;
 using size = size_t;
 
-template < typename T >
-using smart_ptr = shared_ptr< T >;
-
 template< typename T >
 bool within(T low, T hi, T value)
 {
