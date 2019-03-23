@@ -14,8 +14,8 @@ xcpp is self-contained, just download xcpp.sh and copy it somewhere where it can
     
     int hello( strings & arguments )
     {
-    	println( "Hello world!" );
-    	return 0;
+        println( "Hello world!" );
+        return 0;
     }
 
 
