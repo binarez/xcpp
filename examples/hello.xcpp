@@ -1,9 +1,0 @@
-#if 0
-. xcpp.sh $0 $@
-#endif
-
-int hello( strings & arguments )
-{
-	println( "Hello world!" );
-	return 0;
-}
