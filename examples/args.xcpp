@@ -1,11 +1,13 @@
-#!xcpp.sh
+#if 0
+. xcpp.sh $0 $@
+#endif
 
 // Prints all command arguments
 int args( strings & arguments )
 {
-    for( string & arg : arguments )
+    for( size i{ 0 }; i < arguments.size(); ++i )
     {
-        println(arg);
+		cout << "args[" << i << "] " << arguments[i] << endl;
     }
     return 0;
 }
