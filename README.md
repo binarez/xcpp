@@ -27,4 +27,4 @@ and then run it:
 
     ./test.xcpp
 
-The launcher will call the "test" function which should take in a strings (std::vector< std::string >) reference (strings &) and return an integer.
+The launcher will call the "test" function, because the file is named test.xcpp (the extension doesn't matter).
