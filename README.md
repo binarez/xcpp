@@ -7,24 +7,24 @@ If you run a file named "filename.xcpp", the launcher compiles your source code 
 # Install
 xcpp is self-contained, just download xcpp.sh and copy it somewhere where it can be run (like /usr/local/bin)
 
-# Example :  test.xcpp script
-    #!xcpp.sh
-        
-    int test( strings & args )
+# Example :  hello.xcpp script
+    #if 0
+    . xcpp.sh $0 $@
+    #endif
+    
+    int hello( strings & arguments )
     {
-        for( string & arg : args )
-        {
-            println(arg);
-        }
-        return 0;
+    	println( "Hello world!" );
+    	return 0;
     }
+
 
 To run, just make it executable:
 
-    chmod +x ./test.xcpp
+    chmod +x ./hello.xcpp
 
 and then run it:
 
-    ./test.xcpp
+    ./hello.xcpp
 
-The launcher will call the "test" function, because the file is named test.xcpp (the extension doesn't matter).
+The launcher will call the "hello" function, because the file is named hello.xcpp (the extension doesn't matter).
