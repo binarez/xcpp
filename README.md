@@ -1,5 +1,5 @@
 # xcpp
-Run cpp source code from the command line
+Run cpp source code from the command line. If you run a file named "filename.xcpp", the launcher runs the function "filename", which should accept the arguments of the command as a vector of strings reference and returns an integer.
 
 # Install
 xcpp is self-contained, just download xcpp.sh and copy it somewhere where it can be run (like /usr/local/bin)
