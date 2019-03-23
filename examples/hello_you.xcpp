@@ -1,0 +1,12 @@
+#if 0
+. xcpp.sh $0 $@
+#endif
+
+int hello_you( strings & arguments )
+{
+	string name;
+	print( "What is you name? " );
+	readln( name );
+	println( "Hello, " + name + "!" );
+	return 0;
+}
