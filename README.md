@@ -1,5 +1,5 @@
 # xcpp
-Run cpp source code from the command line. xcpp stands for eXecute C++.
+ xcpp stands for eXecute C++. xcpp lets you run C++ source code from the command line.
 
 # How does it work?
 If you run a file named "filename.xcpp", the launcher compiles your source code and runs the function "filename", which needs to accept the command arguments (reference to vector of strings) and must return an integer (the exit code of the script). Command arguments are forwarded to your C++ code.
