@@ -107,12 +107,12 @@ void readln( string & val )
 	getline( cin, val );
 }
 " && (cat "$1" | sed '/^#!/ d') && echo "
-int main(int argc, str argv[])
+int main(int _xcpp_reserved_argc_, str _xcpp_reserved_argv_[])
 {
-	strings args(argv + 1, argv + argc);
-	return $filename( args );
+	strings _xcpp_reserved_args_(_xcpp_reserved_argv_ + 1, _xcpp_reserved_argv_ + _xcpp_reserved_argc_);
+	return $filename( _xcpp_reserved_args_ );
 }
-") | g++ -x c++ -o "$tmpfile" -;	# Compile
+") | g++ -x c++ -DXCPP=1 -o "$tmpfile" -;	# Compile
 chmod +x "$tmpfile";	# Make executable
 "$tmpfile" "${@:1}";	# Execute
 e="$?";					# Capture exit code
