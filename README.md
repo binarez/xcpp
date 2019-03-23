@@ -1,6 +1,9 @@
 # xcpp
 Run cpp source code from the command line
 
+# Install
+xcpp is self-contained, just download xcpp.sh and copy it somewhere where it can be run (like /usr/local/bin)
+
 # Example :  test.xcpp script
     #!xcpp.sh
         
@@ -12,3 +15,11 @@ Run cpp source code from the command line
         }
         return 0;
     }
+
+To run, just make it executable:
+
+    chmod +x ./test.xcpp
+
+and then run it:
+
+    ./test.xcpp
