@@ -2,7 +2,8 @@
 set -e								# Stop executing on error
 tmpfile="/tmp/xcpp.$(uuidgen).elf"	# Generate temp ELF filename
 trap "{ rm -f $tmpfile; }" EXIT		# Trap exit for temp file removal
-filename=$(basename -s .xcpp "$1")
+filename=$(basename "$1")
+filename=${filename%%.*}
 (echo "
 #include <bits/stdc++.h>
 using namespace std;
