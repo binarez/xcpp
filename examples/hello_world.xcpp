@@ -1,8 +1,9 @@
+#pragma once
 #if 0
 . xcpp.sh $0 $@
 #endif
 
-int hello_world( strings & arguments )
+int hello_world( strings arguments )
 {
 	println( "Hello, world!" );
 	return 0;

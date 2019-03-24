@@ -1,9 +1,10 @@
+#pragma once
 #if 0
 . xcpp.sh $0 $@
 #endif
 
 // Prints all command arguments
-int args( strings & arguments )
+int args( strings arguments )
 {
     for( size i{ 0 }; i < arguments.size(); ++i )
     {

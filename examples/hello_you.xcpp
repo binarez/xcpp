@@ -1,8 +1,9 @@
+#pragma once
 #if 0
 . xcpp.sh $0 $@
 #endif
 
-int hello_you( strings & arguments )
+int hello_you( strings arguments )
 {
 	string name;
 	print( "What is you name? " );

@@ -1,0 +1,34 @@
+#pragma once
+#if 0
+. xcpp.sh -march=native -O3 $0 $@
+#endif
+
+size obtainIterations( void )
+{
+	int iters{ 0 };
+	while( iters <= 0 )
+	{
+		print( "How many iterations to approximate pi? " );
+		read( iters );
+	}
+	return (size)iters;
+}
+
+f64 calculatePi( size iterations )
+{
+	// Gregory-Leibniz Series: https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80
+	f64 piValue{ 0 };
+	int denominator{ 1 };
+	int sign{ 1 };
+	for( size i{ 0 }; i < iterations; ++i, denominator += 2, sign = -sign )
+	{
+		piValue += sign * (1.f / denominator);
+	}
+	return 4 * piValue;
+}
+
+int pi( strings args )
+{
+	println( calculatePi( obtainIterations() ) );
+	return 0;
+}

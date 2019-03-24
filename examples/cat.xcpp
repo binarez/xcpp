@@ -1,0 +1,24 @@
+#pragma once
+#if 0
+. xcpp.sh $0 $@
+#endif
+
+int cat( strings args )
+{
+	if( args.size() != 2 )
+	{
+		println( "Usage:" );
+		println( args[0] + " FILENAME" );
+		return -1;
+	}
+	else
+	{
+		ifstream file{ args[1] };
+		string line;
+		while( getline( file, line ) )
+		{
+			println( line );
+		}
+		return 0;
+	}
+}

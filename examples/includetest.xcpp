@@ -1,10 +1,11 @@
+#pragma once
 #if 0
 . xcpp.sh $0 $@
 #endif
 
 #include "args.xcpp"
 
-int includetest( strings & arguments )
+int includetest( strings arguments )
 {
 	return args( arguments );
 }
