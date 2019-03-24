@@ -67,16 +67,10 @@ The xcpp keywords and reserved identifiers are:
   * readln
   * print
   * println
-  * trim
-  * rtrim
-  * ltrim
-  * purge
-  * purge_if
-  * within
-  * size
-  * ssize
   * strings
   * str
+  * size
+  * ssize
   * i8
   * i16
   * i32
@@ -88,3 +82,9 @@ The xcpp keywords and reserved identifiers are:
   * f32
   * f64
   * f128
+  * purge
+  * purge_if
+  * within
+  * trim
+  * rtrim
+  * ltrim
