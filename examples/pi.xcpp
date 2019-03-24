@@ -6,11 +6,11 @@
 size obtainIterations( void )
 {
 	int iters{ 0 };
-	while( iters <= 0 )
+	do
 	{
 		print( "How many iterations to approximate pi? " );
-		read( iters );
 	}
+	while( !read( iters ) || iters <= 0 );
 	return (size)iters;
 }
 

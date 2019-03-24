@@ -111,15 +111,27 @@ inline void println( const T & val )
 }
 
 template < typename T >
-inline void read( T & val )
+inline bool read( T & val )
 {
-	cin >> val;
+	const bool ok{ ( cin >> val ) };
+	if( !ok )
+	{
+		cin.clear();
+	}
 	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	return ok;
 }
 
-inline void readln( string & val )
+inline bool readln( string & val )
 {
-	getline( cin, val );
+	if( getline( cin, val ) )
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 #endif // _XCPP_RESERVED_HEADER_H_
