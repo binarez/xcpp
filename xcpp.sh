@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #------------------------------------------------------------------------------
 set -e								# Stop execution on error
 xcppVersion=1
