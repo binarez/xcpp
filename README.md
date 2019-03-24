@@ -8,17 +8,17 @@ If you run a file named "filename.xcpp", the launcher compiles your source code 
 # Install
 xcpp is a self-contained bash script, just download xcpp.sh and copy it where it can be run, like /usr/local/bin or somewhere else that is in your $PATH.
 
-# Example 1:  hello.xcpp script
+# Example 1:  hello_world.xcpp script
+    #pragma once
     #if 0
     . xcpp.sh $0 $@
     #endif
     
-    int hello( strings & arguments )
+    int hello_world( strings arguments )
     {
-        println( "Hello world!" );
-        return 0;
+    	println( "Hello, world!" );
+    	return 0;
     }
-
 
 To run, first make it executable:
 
@@ -29,6 +29,22 @@ then run it:
     ./hello.xcpp
 
 The launcher will call the "hello" function, because the file is named hello.xcpp -- the extension doesn't matter.
+
+# Example 2:  hello_world.xcpp script
+
+    #pragma once
+    #if 0
+    . xcpp.sh $0 $@
+    #endif
+    
+    int hello_you( strings arguments )
+    {
+    	string name;
+    	print( "What is you name? " );
+    	readln( name );
+    	println( "Hello, " + name + "!" );
+    	return 0;
+    }
 
 # Reserved keywords and identifiers
 
