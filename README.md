@@ -29,9 +29,10 @@ then run it:
 
 The launcher will call the "hello" function, because the file is named hello.xcpp -- the extension doesn't matter.
 
-# Reserved keywords
+# Reserved keywords and identifiers
 
-The xcpp keywords are:
-- Of course, all the C++ keywords;
+The xcpp keywords and reserved identifiers are:
+
+- Of course, all the C++ keywords: https://en.cppreference.com/w/cpp/keyword
 - Because xcpp preincludes all the C++ standard library, all the std symbols: https://en.cppreference.com/w/cpp/symbol_index
-- xcpp adds some more own keywords: read, readln, print, println, trim, rtrim, ltrim, purge, purge_if, within, size, strings, str, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64, f128.
+- xcpp adds some of its own identifiers : read, readln, print, println, trim, rtrim, ltrim, purge, purge_if, within, size, strings, str, i8, i16, i32, i64, u8, u16, u32, u64, f32, f64, f128.
