@@ -22,11 +22,11 @@ xcpp is a self-contained bash script, just download xcpp.sh and copy it where it
 
 To run, first make it executable:
 
-    chmod +x ./hello.xcpp
+    chmod +x ./hello_world.xcpp
 
 then run it:
 
-    ./hello.xcpp
+    ./hello_world.xcpp
 
 The launcher will call the "hello" function, because the file is named hello.xcpp -- the extension doesn't matter.
 
