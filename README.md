@@ -5,6 +5,7 @@ TODO FIX: xcpp stands for eXecute C++: a bash script that runs C++ source code q
 # How does it work?
 
 First, you create a text file (.xcpp extension recommended). The first 4 lines of that file must be:
+
     #pragma once
     #if 0
     . xcpp.sh $0 $@
