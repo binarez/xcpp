@@ -30,7 +30,7 @@ then run it:
 
 The launcher will call the "hello" function, because the file is named hello.xcpp -- the extension doesn't matter.
 
-# Example 2:  hello_world.xcpp script
+# Example 2:  hello_you.xcpp script
 
     #pragma once
     #if 0
