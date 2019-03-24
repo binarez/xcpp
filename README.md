@@ -3,6 +3,15 @@
 TODO FIX: xcpp stands for eXecute C++: a bash script that runs C++ source code quickly. xcpp is C++ in a preconfigured environnement in which . There are some downsides to using xcpp:  xcpp lets you write C++ code in a preconfigured environnement in which . xcpp is mainly built for quick, dirty and small programes. You can think of it as C++ scripting if you like. Remember that it is compiled. If you some code processing a lot of data, you will benefit from using xcpp because you will be running . If you are writing You do not have to worry about which part of STL to include: it is all included. Every single C++ standard library is preincluded . You are not permitted to define a main() function.
 
 # How does it work?
+
+First, you create a text file (.xcpp extension recommended). The first 4 lines of that file must be:
+    #pragma once
+    #if 0
+    . xcpp.sh $0 $@
+    #endif
+
+After that, you are free to write xcpp C++ code.
+
 If you run a file named "filename.xcpp", the launcher compiles your source code and runs the function "filename", which needs to accept the command arguments (reference to vector of strings) and must return an integer (the exit code of the script). Command arguments are forwarded to your C++ code.
 
 # Install
