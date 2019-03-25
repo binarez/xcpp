@@ -89,3 +89,4 @@ The xcpp keywords and reserved identifiers are:
   * trim
   * rtrim
   * ltrim
+  * press_enter_to_continue
