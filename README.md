@@ -69,11 +69,11 @@ The xcpp keywords and reserved identifiers are:
   * readln
   * print
   * println
-  * strings
+  * newline
   * str
+  * strings
   * size
   * ssize
-  * seed_rand
   * i8
   * i16
   * i32
@@ -85,10 +85,11 @@ The xcpp keywords and reserved identifiers are:
   * f32
   * f64
   * f128
+  * seed_rand
   * purge
   * purge_if
   * within
   * trim
   * rtrim
   * ltrim
-  * press_enter_to_continue
+  * press_enter
