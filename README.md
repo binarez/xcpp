@@ -64,7 +64,7 @@ The xcpp keywords and reserved identifiers are:
 
 * Of course, all the C++ keywords: https://en.cppreference.com/w/cpp/keyword
 * Because xcpp preincludes all the C++ standard library, all the std symbols: https://en.cppreference.com/w/cpp/symbol_index
-* xcpp adds some of its own identifiers
+* xcpp adds some of its own identifiers and reserved keywords:
   * read
   * readln
   * print
@@ -93,3 +93,6 @@ The xcpp keywords and reserved identifiers are:
   * rtrim
   * ltrim
   * press_enter
+  * main
+  * XCPP_VERSION
+  * XCPP_MAIN
