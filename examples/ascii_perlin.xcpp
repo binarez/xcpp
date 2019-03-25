@@ -1,0 +1,71 @@
+#pragma once
+#if 0
+. xcpp.sh $0 $@
+#endif
+
+#include "../packages/stb_perlin.xhpp"
+
+#include <sys/ioctl.h>
+#include <unistd.h>		// STDOUT_FILENO
+
+//const string GRAYSCALE{ " .;o0#&%" };
+const string GRAYSCALE{ " .;-+oO0#$&%" };
+//const string GRAYSCALE{ " '.:;=+oO#$&W%" };
+//const string GRAYSCALE{ " .,:;+=i)ITLHO%@#" };
+
+const float SCALE_X = 8.f;
+const float SCALE_Y = 4.f;
+
+void print_instructions(void)
+{
+	println("Ctrl-C to quit :)");
+	press_enter();
+}
+
+char generate_char(size x, size y, size w, size h, float scale)
+{
+	const float oneOverW{ 1.f / w };
+	const float oneOverH{ 1.f / h };
+	int _0_255 = static_cast< int >(((stb::stb_perlin_noise3(x * oneOverW * SCALE_X * scale,
+															y * oneOverH * SCALE_Y * scale,
+															/*z*/ 0.f,
+															0, 0, 0)	// wrap
+	// [-1.f, 1.f] --> +1.f --> [0.f, 2.f ] --> *0.5f --> [0.f, 1.f] --> *255 + 0.5 -> [0.5, 255.5] -> cast to int -> [0, 255]
+										+ 1.f) * 0.5f * 255) + 0.5f);	// transform
+	_0_255 = min(max(0, _0_255), 255);	// clamp within [0, 255] just to be sure
+	return GRAYSCALE.at(static_cast< int >(	_0_255 / 256.f * GRAYSCALE.size()));
+}
+
+void generate_line( string & line, size y, size w, size h, float scale)
+{
+	line.resize( w );
+	for (size x{ 0 }; x < w; ++x)
+	{
+		line[x] = generate_char(x, y, w, h, scale);
+	}
+}
+
+void get_terminal_size(size & w, size & h)
+{
+    struct winsize window;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, & window);
+	w = window.ws_col;
+	h = window.ws_row;
+}
+
+int ascii_perlin( strings args )
+{
+	print_instructions();
+
+	size w{ 0 }, h{ 0 };
+	string line;
+	for( size y{ 0 }; true; ++y )
+	{
+		get_terminal_size( w, h );
+		generate_line( line, y, w, h, 1 );
+		println( line );
+		cout.flush();
+		this_thread::sleep_for( chrono::milliseconds( 40 ) );
+	}
+	return 0;
+}

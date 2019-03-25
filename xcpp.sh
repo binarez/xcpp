@@ -29,7 +29,6 @@ echo "
 #include <bits/stdc++.h>
 using namespace std;
 
-using str = const char *;
 using strings = vector< string >;
 using size = size_t;
 using ssize = ssize_t;
@@ -48,10 +47,21 @@ using f32 = float;
 using f64 = double;
 using f128 = __float128; // long double?
 
-template< typename T >
-inline bool within(T low, T value, T hi)
+template <typename... Args>
+auto str(Args&&... args) -> decltype(std::to_string(std::forward<Args>(args)...))
 {
-	return low <= value && value <= hi;
+	return std::to_string(std::forward<Args>(args)...);
+}
+
+inline void newline( void )
+{
+	std::cout << std::endl;
+}
+
+template< typename T >
+inline bool within( const T & low, const T & value, const T & hi)
+{
+	return (low <= value) && (value <= hi);
 }
 
 template < typename CONTAINER_TYPE, typename VALUE_TYPE >
@@ -131,6 +141,24 @@ inline bool readln( string & val )
 	else
 	{
 		return false;
+	}
+}
+
+inline void press_enter()
+{
+	print(\"Press Enter to continue...\");
+	cin.get();
+}
+
+inline void seed_rand( unsigned int seed = 0 )
+{
+	if( seed == 0 )
+	{
+		srand( static_cast< unsigned int >( time( NULL ) ) );
+	}
+	else
+	{
+		srand( seed );
 	}
 }
 

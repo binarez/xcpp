@@ -7,27 +7,31 @@ int guess( strings args )
 {
 	seed_rand();
 	
-	println( "Guess the number!" );
-	const int nb { (rand() % 10) + 1 };
+	println( "0-1-2-3-4-5-6-7-8-9" );
+	println( "? Guess the Digit !" );
+	println( "9-8-7-6-5-4-3-2-1-0" );
+	newline();
+
+	const int nb { rand() % 10 };
 	int nbGuess{ 0 };
 	do
 	{
-		print( "Try to guess the number I picked between 1 and 10: " );
-		if( !read( nbGuess ) )
+		print( "[0, 9] ? " );
+		if( read( nbGuess ) )
 		{
-		}
-		else if( !within( 1, nbGuess, 10 ) )
-		{
-			println( "Between 1 and 10 please." );
-		}
-		else if( nbGuess < nb )
-		{
-			println( "Try a greater number." );
-		}
-		else if( nbGuess > nb )
-		{
-			println( "Try a lower number." );
+			if( !within( 0, nbGuess, 9 ) )
+			{
+				println( "[0, 9] please" );
+			}
+			else if( nbGuess < nb )
+			{
+				println( "Try higher." );
+			}
+			else if( nbGuess > nb )
+			{
+				println( "Try lower." );
+			}
 		}
 	} while( nbGuess != nb );
-	println( "Congratulations, it was " + to_string(nb) + '!' );
+	println( "Congratulations! It was " + str(nb) + '.' );
 }
