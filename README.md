@@ -71,6 +71,7 @@ The xcpp keywords and reserved identifiers are:
   * str
   * size
   * ssize
+  * seed_rand
   * i8
   * i16
   * i32
