@@ -1,6 +1,8 @@
 # xcpp
 
-TODO FIX: xcpp stands for eXecute C++: a bash script that runs C++ source code quickly. xcpp is C++ in a preconfigured environnement in which . There are some downsides to using xcpp:  xcpp lets you write C++ code in a preconfigured environnement in which . xcpp is mainly built for quick, dirty and small programes. You can think of it as C++ scripting if you like. Remember that it is compiled. If you some code processing a lot of data, you will benefit from using xcpp because you will be running . If you are writing You do not have to worry about which part of STL to include: it is all included. Every single C++ standard library is preincluded . You are not permitted to define a main() function.
+TODO FIX description
+
+xcpp stands for eXecute C++: a bash script that runs C++ source code quickly. xcpp is C++ in a preconfigured environnement in which . There are some downsides to using xcpp:  xcpp lets you write C++ code in a preconfigured environnement in which . xcpp is mainly built for quick, dirty and small programes. You can think of it as C++ scripting if you like. Remember that it is compiled. If you some code processing a lot of data, you will benefit from using xcpp because you will be running . If you are writing You do not have to worry about which part of STL to include: it is all included. Every single C++ standard library is preincluded . You are not permitted to define a main() function.
 
 # How does it work?
 
