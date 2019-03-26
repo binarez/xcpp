@@ -6,11 +6,14 @@ xcpp stands for eXecute C++: a bash script that runs C++ source code quickly. xc
 
 # How does it work?
 
-First, you create a text file (.xcpp extension recommended). The first 4 lines of that file must be:
+First, you create a text file (.xcpp extension recommended). The first 7 lines of that file must be:
 
+    #if !defined(__XCPP__)
+    #define __XCPP__ 0
+    #elif defined(__XCPP__)
     #pragma once
-    #if 0
-    . xcpp.sh $0 $@
+    #else
+    . xcpp.sh "$0" "$@"
     #endif
 
 After that, you are free to write xcpp C++ code.
@@ -21,9 +24,12 @@ If you run a file named "filename.xcpp", the launcher compiles your source code 
 xcpp is a self-contained bash script, just download xcpp.sh and copy it where it can be run, like /usr/local/bin or somewhere else that is in your $PATH.
 
 # Example 1:  hello_world.xcpp
+    #if !defined(__XCPP__)
+    #define __XCPP__ 0
+    #elif defined(__XCPP__)
     #pragma once
-    #if 0
-    . xcpp.sh $0 $@
+    #else
+    . xcpp.sh "$0" "$@"
     #endif
     
     int hello_world( strings arguments )
@@ -44,9 +50,12 @@ The launcher will call the "hello" function, because the file is named hello.xcp
 
 # Example 2:  hello_you.xcpp
 
+    #if !defined(__XCPP__)
+    #define __XCPP__ 0
+    #elif defined(__XCPP__)
     #pragma once
-    #if 0
-    . xcpp.sh $0 $@
+    #else
+    . xcpp.sh "$0" "$@"
     #endif
     
     int hello_you( strings arguments )
