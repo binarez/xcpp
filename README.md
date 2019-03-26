@@ -74,6 +74,7 @@ The xcpp keywords and reserved identifiers are:
   * strings
   * size
   * ssize
+  * for_i
   * i8
   * i16
   * i32
@@ -94,5 +95,6 @@ The xcpp keywords and reserved identifiers are:
   * ltrim
   * press_enter
   * main
-  * XCPP_VERSION
-  * XCPP_MAIN
+  * __XCPP_VERSION__
+  * __XCPP__
+  * __XCPP_RESERVED_HEADER_H__
