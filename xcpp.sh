@@ -6,7 +6,6 @@ xcppVersionRev=1
 #------------------------------------------------------------------------------
 xcppGccUserOptions=""
 xcppExecutionArgIndex=1
-# Eventually add -Wno-pragma-once-outside-header https://gcc.gnu.org/bugzilla/show_bug.cgi?id=89808
 readonly xcppGccHardcodedOptions="-pipe -x c++"
 ProcessXcppGccArgs () {
 	i=1;
