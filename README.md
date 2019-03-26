@@ -104,6 +104,6 @@ The xcpp keywords and reserved identifiers are:
   * ltrim
   * press_enter
   * main
-  * __XCPP_VERSION__
-  * __XCPP__
-  * __XCPP_RESERVED_HEADER_H__
+  * \_\_XCPP_VERSION\_\_
+  * \_\_XCPP\_\_
+  * \_\_XCPP_RESERVED_HEADER_H\_\_
