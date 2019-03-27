@@ -18,12 +18,12 @@ First, you create a text file (.xcpp extension recommended). The first 7 lines o
 
 With comments:
 
-    #if !defined(__XCPP__)      // This is the main xcpp file if __XCPP__ is not defined:
-    #define __XCPP__ 0              // We're in the main program file, define the xcpp version (0: in development).
-    #elif defined(__XCPP__)     // Else if __XCPP__ is already defined, we're in header mode:
-    #pragma once                    // Prevent multi inclusion.
-    #else                       // Else: the case that is never true never reaches the C++ compiler.
-    . xcpp.sh "$0" "$@"         // All the previous lines are comments for bash. Let's call the xcpp launcher.
+    #if !defined(__XCPP__)  // This is the main xcpp file if __XCPP__ is not defined:
+    #define __XCPP__ 0          // We're in the main program file, define the xcpp version (0: in development).
+    #elif defined(__XCPP__) // Else if __XCPP__ is already defined, we're in header mode:
+    #pragma once                // Prevent multi inclusion.
+    #else                   // Else: the case that is never true never reaches the C++ compiler.
+    . xcpp.sh "$0" "$@"     // All the previous lines are comments for bash, but not this one: let's call the xcpp launcher.
     #endif
 
 After that, you are free to write xcpp C++ code.
