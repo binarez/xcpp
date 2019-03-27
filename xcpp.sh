@@ -266,7 +266,9 @@ Main() {
 	CreateTempFiles
 	GenerateXcppHeader $xcppIncludeFile
 	xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
+	echo -ne "Compiling with g++"
 	OutputXcppMainCpp $xcppFunctionName | CompileXcpp "$@"
+	echo -ne "\r                                 \r"
 	xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:1}"
 	exit $xcppExitCode
 }
