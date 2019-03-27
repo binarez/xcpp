@@ -248,6 +248,7 @@ ExecuteXcppBinary () {
 ExtractFunctionName () {
 	local funcname=$(basename "$1")
 	funcname=${funcname%%.*}
+	funcname="${funcname//[^[:alnum:]]/_}"
 	echo $funcname
 }
 
@@ -262,14 +263,37 @@ CompileXcpp () {
 	echo -ne "\r                       \r"
 }
 
+#------------------------------------------------------------------------------
 Run () {
-	ProcessXcppGccArgs "$@:1"
+	ProcessXcppGccArgs "$@"
 	CreateTempFiles
 	GenerateXcppHeader $xcppIncludeFile
-	xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
+	local xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
 	CompileXcpp "$xcppFunctionName" "${!xcppExecutionArgIndex}"
 	xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:$xcppExecutionArgIndex}"
 	exit $xcppExitCode
+}
+
+#------------------------------------------------------------------------------
+CreateNewXcppFiles () {
+	for file in "$@"
+	do
+		local xcppFunctionName=$(ExtractFunctionName "$file")
+		echo "\
+#if !defined(__XCPP__)
+#define __XCPP__ $xcppVersion
+#elif defined(__XCPP__)
+#pragma once
+#else
+. xcpp.sh run \"\$0\" \"\$@\"
+#endif
+
+int $xcppFunctionName( strings args )
+{
+	return 0;
+}\
+" 		> "$file"
+	done
 }
 
 #------------------------------------------------------------------------------
@@ -277,7 +301,9 @@ Main() {
 	if [[ $# -lt 1 ]] || [[ $1 == "help" ]]; then
 		PrintHelp
 	elif [[ $1 == "run" ]]; then
-		Run "$@"
+		Run "${@:1}"
+	elif [[ $1 == "new" ]]; then
+		CreateNewXcppFiles "${@:2}"
 	fi
 }
 
