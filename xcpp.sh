@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 
 # xcpp new
-# xcpp help et man
+# xcpp help
 # xcpp run
 # xcpp run_gcc
 # xcpp run_clang
+# xcpp run_cl
 # xcpp build
 # xcpp build_gcc
 # xcpp build_clang
@@ -26,7 +27,7 @@ set -e
 
 #----[ Constants ] ------------------------------------------------------------
 readonly xcppVersion=0
-readonly xcppVersionRev=1
+readonly xcppVersionRev=2
 readonly xcppGccHardcodedOptions="-pipe -xc++"
 
 #----[ Variables ] ------------------------------------------------------------
@@ -37,7 +38,7 @@ xcppIncludeFile=""
 
 #------------------------------------------------------------------------------
 ProcessXcppGccArgs () {
-	i=2;
+	i=1;
 	for arg in "$@"
 	do
 		# If the argument starts with a -dash
@@ -45,11 +46,12 @@ ProcessXcppGccArgs () {
 			xcppGccUserOptions="$xcppGccUserOptions $arg"
 		else
 			# We're done
-			((xcppExecutionArgIndex=i))
+			echo $i
 			return
 		fi
 		((i=i+1))
 	done
+	echo 1
 }
 
 #------------------------------------------------------------------------------
@@ -265,7 +267,8 @@ CompileXcpp () {
 
 #------------------------------------------------------------------------------
 Run () {
-	ProcessXcppGccArgs "$@"
+	xcppExecutionArgIndex=$(ProcessXcppGccArgs "${@:2}")
+	((xcppExecutionArgIndex++))
 	CreateTempFiles
 	GenerateXcppHeader $xcppIncludeFile
 	local xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
@@ -276,7 +279,13 @@ Run () {
 
 #------------------------------------------------------------------------------
 CreateNewXcppFiles () {
-	for file in "$@"
+	local files="$@"
+	if [[ $# -lt 1 ]]; then
+		echo -n "Enter new file name: "
+		read files
+	fi
+
+	for file in $files
 	do
 		local xcppFunctionName=$(ExtractFunctionName "$file")
 		echo "\
@@ -301,9 +310,11 @@ Main() {
 	if [[ $# -lt 1 ]] || [[ $1 == "help" ]]; then
 		PrintHelp
 	elif [[ $1 == "run" ]]; then
-		Run "${@:1}"
+		Run "$@"
 	elif [[ $1 == "new" ]]; then
 		CreateNewXcppFiles "${@:2}"
+	else
+		Run run "$@"
 	fi
 }
 
