@@ -89,8 +89,6 @@ GenerateXcppHeader () {
 			  ((FORI_FROM) < (FORI_TO)) ? ++i : --i )
 
 	using strings = vector< string >;
-	using size = size_t;
-	using ssize = ssize_t;
 	using sz = size_t;
 	using ssz = ssize_t;
 
@@ -255,16 +253,20 @@ ExtractFunctionName () {
 #------------------------------------------------------------------------------
 # Main program
 #------------------------------------------------------------------------------
-if [[ $# -lt 1 ]]; then				# We need at last one command argument: the source file
-	PrintHelp
-	exit 42
-fi
+Main() {
+	if [[ $# -lt 1 ]]; then				# We need at last one command argument: the source file
+		PrintHelp
+		exit 42
+	fi
 
-ProcessXcppGccArgs "$@"
-CreateTempFiles
-GenerateXcppHeader $xcppIncludeFile
-xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
-OutputXcppMainCpp $xcppFunctionName |
-	g++ $xcppGccHardcodedOptions -include "$xcppIncludeFile" -D__XCPP_VERSION__=$xcppVersion $xcppGccUserOptions -o "$xcppElfFile" /dev/stdin "${!xcppExecutionArgIndex}"
-xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:1}"
-exit $xcppExitCode
+	ProcessXcppGccArgs "$@"
+	CreateTempFiles
+	GenerateXcppHeader $xcppIncludeFile
+	xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
+	OutputXcppMainCpp $xcppFunctionName |
+		g++ $xcppGccHardcodedOptions -include "$xcppIncludeFile" -D__XCPP_VERSION__=$xcppVersion $xcppGccUserOptions -o "$xcppElfFile" /dev/stdin "${!xcppExecutionArgIndex}"
+	xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:1}"
+	exit $xcppExitCode
+}
+
+Main
