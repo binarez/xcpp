@@ -250,23 +250,16 @@ ExtractFunctionName () {
 	echo $funcname
 }
 
-#------------------------------------------------------------------------------
-# Main program
-#------------------------------------------------------------------------------
-Main() {
-	if [[ $# -lt 1 ]]; then				# We need at last one command argument: the source file
-		PrintHelp
-		exit 42
-	fi
+if [[ $# -lt 1 ]]; then				# We need at last one command argument: the source file
+	PrintHelp
+	exit 42
+fi
 
-	ProcessXcppGccArgs "$@"
-	CreateTempFiles
-	GenerateXcppHeader $xcppIncludeFile
-	xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
-	OutputXcppMainCpp $xcppFunctionName |
-		g++ $xcppGccHardcodedOptions -include "$xcppIncludeFile" -D__XCPP_VERSION__=$xcppVersion $xcppGccUserOptions -o "$xcppElfFile" /dev/stdin "${!xcppExecutionArgIndex}"
-	xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:1}"
-	exit $xcppExitCode
-}
-
-Main
+ProcessXcppGccArgs "$@"
+CreateTempFiles
+GenerateXcppHeader $xcppIncludeFile
+xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
+OutputXcppMainCpp $xcppFunctionName |
+	g++ $xcppGccHardcodedOptions -include "$xcppIncludeFile" -D__XCPP_VERSION__=$xcppVersion $xcppGccUserOptions -o "$xcppElfFile" /dev/stdin "${!xcppExecutionArgIndex}"
+xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:1}"
+exit $xcppExitCode
