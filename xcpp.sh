@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-set -e # Stop execution on error
+# Stop execution on error
+set -e
 
 #----[ Constants ] ------------------------------------------------------------
 readonly xcppVersion=0
@@ -38,8 +39,6 @@ CreateTempFiles () {
 
 	# Trap exit for temp files removal
 	trap "{ rm -f $xcppElfFile; rm -f $xcppIncludeFile; }" EXIT
-
-	GenerateTempXcppHeader $xcppIncludeFile
 }
 
 #------------------------------------------------------------------------------
@@ -201,6 +200,27 @@ GenerateTempXcppHeader () {
 }
 
 #------------------------------------------------------------------------------
+# TODO
+# Handle setlocale with -xccp_locale option
+OutputXcppMainCpp () {
+	echo "
+	#include <vector>
+	#include <string>
+	/* #include <clocale> */
+	int main(int _xcpp_reserved_argc_, const char * _xcpp_reserved_argv_[])
+	{
+		/* setlocale( LC_ALL, "" ); */
+		int $1( std::vector<std::string> );
+		return $1( std::vector<std::string>(_xcpp_reserved_argv_ + 1, _xcpp_reserved_argv_ + _xcpp_reserved_argc_) );
+	}
+	"
+}
+
+#------------------------------------------------------------------------------
+#ExecuteXcppBinary () {
+#}
+
+#------------------------------------------------------------------------------
 # Main program
 #------------------------------------------------------------------------------
 if [[ $# -lt 1 ]]; then				# We need at last one command argument: the source file
@@ -210,19 +230,11 @@ fi
 
 ProcessXcppGccArgs "$@"
 CreateTempFiles
+GenerateTempXcppHeader $xcppIncludeFile
 funcname=$(basename "${!xcppExecutionArgIndex}")
 funcname=${funcname%%.*}
-echo "
-#include <vector>
-#include <string>
-//#include <clocale>
-int main(int _xcpp_reserved_argc_, const char * _xcpp_reserved_argv_[])
-{
-	//setlocale(LC_ALL, "");
-	int $funcname( std::vector<std::string> );
-	return $funcname( std::vector<std::string>(_xcpp_reserved_argv_ + 1, _xcpp_reserved_argv_ + _xcpp_reserved_argc_) );
-}
-" | g++ $xcppGccHardcodedOptions -include $xcppIncludeFile -D__XCPP__VERSION__=$xcppVersion $xcppGccUserOptions -o "$xcppElfFile" /dev/stdin "${!xcppExecutionArgIndex}"
+OutputXcppMainCpp $funcname |
+	g++ $xcppGccHardcodedOptions -include "$xcppIncludeFile" -D__XCPP_VERSION__=$xcppVersion $xcppGccUserOptions -o "$xcppElfFile" /dev/stdin "${!xcppExecutionArgIndex}"
 chmod +x "$xcppElfFile";	# Make executable
 "$xcppElfFile" "${@:1}";	# Execute
 e="$?";					# Capture exit code
