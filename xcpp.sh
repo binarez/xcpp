@@ -8,16 +8,18 @@
 # xcpp build
 # xcpp build_gcc
 # xcpp build_clang
+# xcpp build_cl
 # xcpp clean
-# xcpp live et watch
-# xcpp live_gcc
-# xcpp live_clang
+# xcpp watch
+# xcpp watch_gcc
+# xcpp watch_clang
+# xcpp watch_cl
 # xcpp install
+# xcpp export_h xcpp.h
 # xcpp export main.cpp
-# xcpp header NomFichier.h
-# xcpp test -> appel automatique d'une fonction de test sur un .xcpp ou .xhpp
+# xcpp test -> automatically calls the test function of a .xcpp or .xhpp file
 # xcpp time
-# xcpp stats
+# xcpp info
 
 # Stop execution on error
 set -e
@@ -35,14 +37,13 @@ xcppIncludeFile=""
 
 #------------------------------------------------------------------------------
 ProcessXcppGccArgs () {
-	i=1;
+	i=2;
 	for arg in "$@"
 	do
 		# If the argument starts with a -dash
 		if [[ "$arg" =~ ^-.* ]]; then
 			xcppGccUserOptions="$xcppGccUserOptions $arg"
-		# Else If we already have gcc options
-		elif [ ! -z "$xcppGccUserOptions" ]; then
+		else
 			# We're done
 			((xcppExecutionArgIndex=i))
 			return
@@ -252,7 +253,7 @@ ExtractFunctionName () {
 
 #------------------------------------------------------------------------------
 CompileXcpp () {
-	echo -ne "Compiling with g++"
+	echo -ne "Compiling with g++ "
 	OutputXcppMainCpp "$1" | 
 	g++ $xcppGccHardcodedOptions $xcppGccUserOptions \
 		-include "$xcppIncludeFile" -D__XCPP_VERSION__=$xcppVersion \
@@ -261,14 +262,8 @@ CompileXcpp () {
 	echo -ne "\r                       \r"
 }
 
-#------------------------------------------------------------------------------
-Main() {
-	if [[ $# -lt 1 ]]; then # We need at last one command argument: the source file
-		PrintHelp
-		exit 42
-	fi
-
-	ProcessXcppGccArgs "$@"
+Run () {
+	ProcessXcppGccArgs "$@:1"
 	CreateTempFiles
 	GenerateXcppHeader $xcppIncludeFile
 	xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
@@ -277,4 +272,14 @@ Main() {
 	exit $xcppExitCode
 }
 
+#------------------------------------------------------------------------------
+Main() {
+	if [[ $# -lt 1 ]] || [[ $1 == "help" ]]; then
+		PrintHelp
+	elif [[ $1 == "run" ]]; then
+		Run "$@"
+	fi
+}
+
 Main "$@"
+exit 0

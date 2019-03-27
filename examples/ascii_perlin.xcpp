@@ -3,7 +3,7 @@
 #elif defined(__XCPP__)
 #pragma once
 #else
-. xcpp.sh "$0" "$@"
+. xcpp.sh run "$0" "$@"
 #endif
 
 #include "../packages/stb_perlin.xhpp"
@@ -25,7 +25,7 @@ void print_instructions(void)
 	press_enter();
 }
 
-char generate_char(size x, size y, size w, size h, float scale)
+char generate_char(sz x, sz y, sz w, sz h, float scale)
 {
 	const float oneOverW{ 1.f / w };
 	const float oneOverH{ 1.f / h };
@@ -39,16 +39,16 @@ char generate_char(size x, size y, size w, size h, float scale)
 	return GRAYSCALE.at(static_cast< int >(	_0_255 / 256.f * GRAYSCALE.size()));
 }
 
-void generate_line( string & line, size y, size w, size h, float scale)
+void generate_line( string & line, sz y, sz w, sz h, float scale)
 {
 	line.resize( w );
-	for (size x{ 0 }; x < w; ++x)
+	for (sz x{ 0 }; x < w; ++x)
 	{
 		line[x] = generate_char(x, y, w, h, scale);
 	}
 }
 
-void get_terminal_size(size & w, size & h)
+void get_terminal_sz(sz & w, sz & h)
 {
     struct winsize window;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, & window);
@@ -60,11 +60,11 @@ int ascii_perlin( strings args )
 {
 	print_instructions();
 
-	size w{ 0 }, h{ 0 };
+	sz w{ 0 }, h{ 0 };
 	string line;
-	for( size y{ 0 }; true; ++y )
+	for( sz y{ 0 }; true; ++y )
 	{
-		get_terminal_size( w, h );
+		get_terminal_sz( w, h );
 		generate_line( line, y, w, h, 1 );
 		println( line );
 		cout.flush();

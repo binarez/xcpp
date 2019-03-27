@@ -3,13 +3,13 @@
 #elif defined(__XCPP__)
 #pragma once
 #else
-. xcpp.sh "$0" "$@"
+. xcpp.sh run "$0" "$@"
 #endif
 
 // This is an include test.
 
 #include "hostname.xcpp"	// Includes cat.xcpp
-#include "cat.xcpp"				// Included twice
+#include "cat.xcpp"			// Included twice
 
 int include_test( strings args )
 {
