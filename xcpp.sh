@@ -269,7 +269,7 @@ Main() {
 	echo -ne "Compiling with g++"
 	OutputXcppMainCpp $xcppFunctionName | CompileXcpp "$@"
 	echo -ne "\r                                 \r"
-	xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:1}"
+	xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:$xcppExecutionArgIndex}"
 	exit $xcppExitCode
 }
 
