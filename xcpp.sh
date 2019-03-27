@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# xcpp new
+# xcpp help et man
 # xcpp run
 # xcpp run_gcc
 # xcpp run_clang
@@ -7,7 +9,7 @@
 # xcpp build_gcc
 # xcpp build_clang
 # xcpp clean
-# xcpp live (ou watch)
+# xcpp live et watch
 # xcpp live_gcc
 # xcpp live_clang
 # xcpp install
@@ -23,7 +25,7 @@ set -e
 #----[ Constants ] ------------------------------------------------------------
 readonly xcppVersion=0
 readonly xcppVersionRev=1
-readonly xcppGccHardcodedOptions="-pipe -x c++"
+readonly xcppGccHardcodedOptions="-pipe -xc++"
 
 #----[ Variables ] ------------------------------------------------------------
 xcppGccUserOptions=""
@@ -89,6 +91,8 @@ GenerateXcppHeader () {
 	using strings = vector< string >;
 	using size = size_t;
 	using ssize = ssize_t;
+	using sz = size_t;
+	using ssz = ssize_t;
 
 	using i8 = int8_t;
 	using i16 = int16_t;
