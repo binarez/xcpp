@@ -252,7 +252,13 @@ ExtractFunctionName () {
 
 #------------------------------------------------------------------------------
 CompileXcpp () {
-	g++ $xcppGccHardcodedOptions -include "$xcppIncludeFile" -D__XCPP_VERSION__=$xcppVersion $xcppGccUserOptions -o "$xcppElfFile" /dev/stdin "${!xcppExecutionArgIndex}"
+	echo -ne "Compiling with g++"
+	OutputXcppMainCpp "$1" | 
+	g++ $xcppGccHardcodedOptions $xcppGccUserOptions \
+		-include "$xcppIncludeFile" -D__XCPP_VERSION__=$xcppVersion \
+		-o "$xcppElfFile" \
+		/dev/stdin "$2"
+	echo -ne "\r                       \r"
 }
 
 #------------------------------------------------------------------------------
@@ -266,9 +272,7 @@ Main() {
 	CreateTempFiles
 	GenerateXcppHeader $xcppIncludeFile
 	xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
-	echo -ne "Compiling with g++"
-	OutputXcppMainCpp $xcppFunctionName | CompileXcpp "$@"
-	echo -ne "\r                                 \r"
+	CompileXcpp "$xcppFunctionName" "${!xcppExecutionArgIndex}"
 	xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:$xcppExecutionArgIndex}"
 	exit $xcppExitCode
 }
