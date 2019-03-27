@@ -224,6 +224,7 @@ GenerateXcppHeader () {
 #------------------------------------------------------------------------------
 # TODO
 # Handle setlocale with -xcpp_locale option
+# -xcpp_boost option
 OutputXcppMainCpp () {
 	echo "
 	#include <vector>
@@ -278,15 +279,24 @@ Run () {
 }
 
 #------------------------------------------------------------------------------
+PrintHelpNew () {
+	echo "Creates a new xcpp file"
+    echo "xcpp.sh new FILE1 [FILE2 ... FILEN]"
+}
+
+#------------------------------------------------------------------------------
 CreateNewXcppFiles () {
-	local files="$@"
 	if [[ $# -lt 1 ]]; then
-		echo -n "Enter new file name: "
-		read files
+		PrintHelpNew
+		return
 	fi
 
-	for file in $files
+	for file in "$@"
 	do
+		if [[ -f "$file" ]]; then
+			echo xcpp warning: \""$file"\" already exists, not overwriting.
+			continue
+		fi
 		local xcppFunctionName=$(ExtractFunctionName "$file")
 		echo "\
 #if !defined(__XCPP__)
@@ -299,6 +309,7 @@ CreateNewXcppFiles () {
 
 int $xcppFunctionName( strings args )
 {
+	println( \"Hello, world!\" );
 	return 0;
 }\
 " 		> "$file"
