@@ -16,6 +16,16 @@ First, you create a text file (.xcpp extension recommended). The first 7 lines o
     . xcpp.sh "$0" "$@"
     #endif
 
+With comments:
+
+    #if !defined(__XCPP__)      // This is the main xcpp file if __XCPP__ is not defined:
+    #define __XCPP__ 0              // We're in the main program file, define the xcpp version (0: in development).
+    #elif defined(__XCPP__)     // Else if __XCPP__ is already defined, we're in header mode:
+    #pragma once                    // Prevent multi inclusion.
+    #else                       // Else: the case that is never true never reaches the C++ compiler.
+    . xcpp.sh "$0" "$@"         // All the previous lines are comments for bash. Let's call the xcpp launcher.
+    #endif
+
 After that, you are free to write xcpp C++ code.
 
 If you run a file named "filename.xcpp", the launcher compiles your source code and runs the function "filename", which needs to accept the command arguments (reference to vector of strings) and must return an integer (the exit code of the script). Command arguments are forwarded to your C++ code.
