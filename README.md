@@ -91,8 +91,8 @@ The xcpp keywords and reserved identifiers are:
   * newline
   * str
   * strings
-  * size
-  * ssize
+  * sz
+  * ssz
   * for_i
   * i8
   * i16
