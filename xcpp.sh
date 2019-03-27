@@ -3,6 +3,10 @@
 # xcpp run
 # xcpp run_gcc
 # xcpp run_clang
+# xcpp build
+# xcpp build_gcc
+# xcpp build_clang
+# xcpp clean
 # xcpp live (ou watch)
 # xcpp live_gcc
 # xcpp live_clang
@@ -231,11 +235,11 @@ OutputXcppMainCpp () {
 }
 
 #------------------------------------------------------------------------------
-#ExecuteXcppBinary () {
-#	chmod +x "$1"	# Make executable
-#	"$1" "${@:2}"	# Execute
-#	echo $?
-#}
+ExecuteXcppBinary () {
+	chmod +x "$1"	# Make executable
+	"$1" "${@:2}"	# Execute
+	return $?
+}
 
 #------------------------------------------------------------------------------
 ExtractFunctionName () {
@@ -258,8 +262,5 @@ GenerateXcppHeader $xcppIncludeFile
 xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
 OutputXcppMainCpp $xcppFunctionName |
 	g++ $xcppGccHardcodedOptions -include "$xcppIncludeFile" -D__XCPP_VERSION__=$xcppVersion $xcppGccUserOptions -o "$xcppElfFile" /dev/stdin "${!xcppExecutionArgIndex}"
-#ExecuteXcppBinary "$xcppElfFile" "${@:1}"
-chmod +x "$xcppElfFile";	# Make executable
-"$xcppElfFile" "${@:1}";	# Execute
-e="$?";					# Capture exit code
-exit "$e";				# Exit with proper exit code
+xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:1}"
+exit $xcppExitCode
