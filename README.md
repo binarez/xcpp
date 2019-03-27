@@ -32,7 +32,7 @@ xcpp is a self-contained bash script, just download xcpp.sh and copy it where it
     . xcpp.sh "$0" "$@"
     #endif
     
-    int hello_world( strings arguments )
+    int hello_world( strings args )
     {
     	println( "Hello, world!" );
     	return 0;
@@ -58,7 +58,7 @@ The launcher will call the "hello" function, because the file is named hello.xcp
     . xcpp.sh "$0" "$@"
     #endif
     
-    int hello_you( strings arguments )
+    int hello_you( strings args )
     {
     	string name;
     	print( "What is you name? " );
