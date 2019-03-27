@@ -1,0 +1,21 @@
+#if !defined(__XCPP__)
+#define __XCPP__ 0
+#elif defined(__XCPP__)
+#pragma once
+#else
+. xcpp.sh "$0" "$@"
+#endif
+
+// This is an include test.
+
+#include "hostname.xcpp"	// Includes cat.xcpp
+#include "cat.xcpp"				// Included twice
+
+int include_test( strings args )
+{
+	print( "hostname: ");
+	hostname( { __FILE__ } );
+	println( string( 32, '-' ) );
+	cat( { __FILE__, "/etc/shells" } );
+	return 0;
+}
