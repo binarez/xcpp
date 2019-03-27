@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 
+# xcpp run
+# xcpp run_gcc
+# xcpp run_clang
+# xcpp live (ou watch)
+# xcpp live_gcc
+# xcpp live_clang
+# xcpp install
+# xcpp export main.cpp
+# xcpp header NomFichier.h
+# xcpp test -> appel automatique d'une fonction de test sur un .xcpp ou .xhpp
+# xcpp time
+# xcpp stats
+
 # Stop execution on error
 set -e
 
@@ -51,12 +64,12 @@ PrintHelp () {
 	echo "Optionally, specify gcc options:"
 	echo "$0 [GCC_OPTIONS] FILE.xcpp [ARG1 ARG2 ... ARGN]"
 	echo ""
-	echo "For example, to run crunch.xcpp with O3 optimization level and without warnings:"
-	echo "$0 -O3 -w crunch.xcpp"
+	echo "For example, to run crunch.xcpp with O3 level and native optimizations:"
+	echo "$0 -march=native -O3 crunch.xcpp"
 }
 
 #------------------------------------------------------------------------------
-GenerateTempXcppHeader () {
+GenerateXcppHeader () {
 	echo "
 	#ifndef _XCPP_RESERVED_HEADER_H_
 	#define _XCPP_RESERVED_HEADER_H_
@@ -201,7 +214,7 @@ GenerateTempXcppHeader () {
 
 #------------------------------------------------------------------------------
 # TODO
-# Handle setlocale with -xccp_locale option
+# Handle setlocale with -xcpp_locale option
 OutputXcppMainCpp () {
 	echo "
 	#include <vector>
@@ -211,14 +224,25 @@ OutputXcppMainCpp () {
 	{
 		/* setlocale( LC_ALL, "" ); */
 		int $1( std::vector<std::string> );
-		return $1( std::vector<std::string>(_xcpp_reserved_argv_ + 1, _xcpp_reserved_argv_ + _xcpp_reserved_argc_) );
+		return $1( std::vector<std::string>(_xcpp_reserved_argv_ + 1,
+											_xcpp_reserved_argv_ + _xcpp_reserved_argc_) );
 	}
 	"
 }
 
 #------------------------------------------------------------------------------
 #ExecuteXcppBinary () {
+#	chmod +x "$1"	# Make executable
+#	"$1" "${@:2}"	# Execute
+#	echo $?
 #}
+
+#------------------------------------------------------------------------------
+ExtractFunctionName () {
+	local funcname=$(basename "$1")
+	funcname=${funcname%%.*}
+	echo $funcname
+}
 
 #------------------------------------------------------------------------------
 # Main program
@@ -230,11 +254,11 @@ fi
 
 ProcessXcppGccArgs "$@"
 CreateTempFiles
-GenerateTempXcppHeader $xcppIncludeFile
-funcname=$(basename "${!xcppExecutionArgIndex}")
-funcname=${funcname%%.*}
-OutputXcppMainCpp $funcname |
+GenerateXcppHeader $xcppIncludeFile
+xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
+OutputXcppMainCpp $xcppFunctionName |
 	g++ $xcppGccHardcodedOptions -include "$xcppIncludeFile" -D__XCPP_VERSION__=$xcppVersion $xcppGccUserOptions -o "$xcppElfFile" /dev/stdin "${!xcppExecutionArgIndex}"
+#ExecuteXcppBinary "$xcppElfFile" "${@:1}"
 chmod +x "$xcppElfFile";	# Make executable
 "$xcppElfFile" "${@:1}";	# Execute
 e="$?";					# Capture exit code
