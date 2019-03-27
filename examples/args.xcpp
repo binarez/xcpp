@@ -9,7 +9,7 @@
 // Prints all command arguments
 int args( strings arguments )
 {
-    for( size i{ 0 }; i < arguments.size(); ++i )
+    for_i( size, 0, arguments.size() )
     {
 		cout << "args[" << i << "] " << arguments[i] << endl;
     }
