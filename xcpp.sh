@@ -250,6 +250,11 @@ inline void seed_rand( unsigned int seed = 0 )
 	}
 }
 
+inline void sleep_ms( sz msTime )
+{
+	std::this_thread::sleep_for( chrono::milliseconds(msTime) );
+}
+
 #endif // _XCPP_HEADER_RESERVED_H_ \
 " 		> "$1"
 }
@@ -298,6 +303,9 @@ CompileXcpp () {
 }
 
 #------------------------------------------------------------------------------
+# Runs an xcpp file
+# $1 command: run, defrun, spinrun,
+# $2 xcpp file to run
 CmdRun () {
 	if [[ $# -lt 2 ]]; then
 		HelpRun
@@ -309,7 +317,11 @@ CmdRun () {
 	GenerateXcppHeader $xcppIncludeFile
 	local xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
 	CompileXcpp "$xcppFunctionName" "${!xcppExecutionArgIndex}"
-	xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:$xcppExecutionArgIndex}"
+	if [[ $1 == "runbg" ]]; then
+		xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:$xcppExecutionArgIndex}" &
+	else
+		xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:$xcppExecutionArgIndex}"
+	fi
 	return $xcppExitCode
 }
 
@@ -351,19 +363,26 @@ CmdExportCpp () {
 }
 
 #------------------------------------------------------------------------------
+# Observe an xcpp file and re-runs it on change.
+# $1 watch command (watch or watch_*)
+# $2 xcpp file to watch
 CmdWatch () {
 	if [[ $# -lt 2 ]]; then
 		HelpWatch
 		return
 	fi
 	local lastHash=`sha256sum "$2"`
-	CmdRun "$@"
+	CmdRun runbg "${@:2}"
+	local watchedPID=$!
 	while true; do
 	  sleep $xcppWatchDelay
 	  local newHash=`sha256sum "$2"`
 	  if [ "$newHash" != "$lastHash" ]; then
 		clear
-		CmdRun "$@"
+		disown
+		kill -9 $watchedPID
+		CmdRun runbg "${@:2}"
+		watchedPID=$!
 		lastHash="$newHash"
 	  fi
 	done
@@ -410,6 +429,8 @@ Main() {
 	elif [[ $1 == "run" ]]; then
 		CmdRun "$@"
 		exit $?
+	elif [[ $1 == "runbg" ]]; then
+		CmdRun "$@"
 	elif [[ $1 == "watch" ]]; then
 		CmdWatch "$@"
 	elif [[ $1 == "new" ]]; then
@@ -419,7 +440,7 @@ Main() {
 	elif [[ $1 == "export_h" ]]; then
 		CmdExportHeader "${@:2}"
 	else # Defaults to run
-		CmdRun run "$@"
+		CmdRun defrun "$@"
 		exit $?
 	fi
 }
