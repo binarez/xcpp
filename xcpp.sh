@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 
+# xcpp build
+# xcpp clean
+
 # xcpp run_gcc
 # xcpp run_clang
 # xcpp run_cl
-# xcpp build
 # xcpp build_gcc
 # xcpp build_clang
 # xcpp build_cl
-# xcpp clean
-# xcpp watch
 # xcpp watch_gcc
 # xcpp watch_clang
 # xcpp watch_cl
+
 # xcpp install
-# xcpp export main.cpp
 # xcpp test -> automatically calls the test function of a .xcpp or .xhpp file
 # xcpp time
 # xcpp info
@@ -25,13 +25,13 @@ set -e
 readonly xcppVersion=0
 readonly xcppVersionRev=2
 readonly xcppGccHardcodedOptions="-pipe -xc++"
+readonly xcppWatchDelay=1	# Seconds: 1.5 = 1500 ms
 
 #----[ Variables ] ------------------------------------------------------------
 xcppGccUserOptions=""
 xcppExecutionArgIndex=1
 xcppElfFile=""
 xcppIncludeFile=""
-xcppWatchDelay=1	# Seconds: 1.5 = 1500 ms
 
 #------------------------------------------------------------------------------
 # TODO : Generalize this to handle all options, xcpp and compiler options
@@ -65,9 +65,9 @@ CreateTempFiles () {
 
 #------------------------------------------------------------------------------
 CmdPrintHelp () {
-    echo "xcpp.sh version $xcppVersion.$xcppVersionRev"
+    echo "xcpp.sh v$xcppVersion.$xcppVersionRev"
 	echo ""
-	echo "Usage:"
+	echo "usage:"
 	echo "$0 FILE.xcpp [ARG1 ARG2 ... ARGN]"
 	echo ""
 	echo "Optionally, specify gcc options:"
@@ -98,7 +98,8 @@ HelpNew () {
 #------------------------------------------------------------------------------
 HelpExportHeader () {
 	echo "Exports a header file containing the xcpp environment."
-    echo "xcpp.sh export_h FILE.h [FILE2.h ... FILEN.h]"
+    echo "xcpp.sh export_h [FILE.h]"
+	echo " FILE.h defaults to xcpp.h if not specified"
 }
 
 #------------------------------------------------------------------------------
@@ -300,6 +301,7 @@ CompileXcpp () {
 CmdRun () {
 	if [[ $# -lt 2 ]]; then
 		HelpRun
+		return
 	fi
 	xcppExecutionArgIndex=$(ProcessXcppGccArgs "${@:2}")
 	((xcppExecutionArgIndex++))
@@ -312,24 +314,31 @@ CmdRun () {
 }
 
 #------------------------------------------------------------------------------
+# [$1] Header file to produce (output): defaults to xcpp.h if not specified
 CmdExportHeader () {
 	if [[ $# -lt 1 ]]; then
 		set -- xcpp.h
+		echo xcpp.h
+	elif [[ $# -ne 1 ]]; then
+		HelpExportHeader;
+		return
 	fi
-	for file in "$@"
-	do
-		if [[ -f "$file" ]]; then
-			echo xcpp error: \""$file"\" already exists, not overwriting.
-			continue
-		fi
-		GenerateXcppHeader "$file"
-	done
+
+	if [[ -f "$1" ]]; then
+		echo xcpp error: \""$1"\" already exists, not overwriting.
+	else
+		GenerateXcppHeader "$1"
+	fi
 }
 
 #------------------------------------------------------------------------------
+# Export a cpp file from an xcpp file.
+# $1 xcpp file (input)
+# $2 cpp file (output)
 CmdExportCpp () {
 	if [[ $# -ne 2 ]]; then
 		HelpExportCpp
+		return
 	elif [[ ! -f "$1" ]]; then
 		echo xcpp error: \""$1"\" not found.
 	elif [[ -f "$2" ]]; then
@@ -396,6 +405,8 @@ int $xcppFunctionName( strings args )
 Main() {
 	if [[ $# -lt 1 ]] || [[ $1 == "help" ]]; then
 		CmdPrintHelp
+	elif [[ $1 == "v" ]] || [[ $1 == "version" ]]; then
+		echo v"$xcppVersion.$xcppVersionRev"
 	elif [[ $1 == "run" ]]; then
 		CmdRun "$@"
 		exit $?
@@ -407,7 +418,7 @@ Main() {
 		CmdExportCpp "${@:2}"
 	elif [[ $1 == "export_h" ]]; then
 		CmdExportHeader "${@:2}"
-	else
+	else # Defaults to run
 		CmdRun run "$@"
 		exit $?
 	fi
