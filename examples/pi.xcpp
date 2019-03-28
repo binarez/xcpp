@@ -25,9 +25,10 @@ f64 calculatePi( sz iterations )
 	int sign{ 1 };
 	for( sz i{ 0 }; i < iterations; ++i, denominator += 2, sign = -sign )
 	{
-		piValue += sign * (1.f / denominator);
+		piValue += 4 * sign * (1.f / denominator);
+		println(piValue);
 	}
-	return 4 * piValue;
+	return piValue;
 }
 
 int pi( strings args )
