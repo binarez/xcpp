@@ -81,7 +81,9 @@ GenerateXcppHeader () {
 	echo "\
 #ifndef _XCPP_HEADER_RESERVED_H_
 #define _XCPP_HEADER_RESERVED_H_
+
 #define __XCPP_VERSION__ $xcppVersion
+
 #include <bits/stdc++.h>
 using namespace std;
 
