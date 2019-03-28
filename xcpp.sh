@@ -266,7 +266,17 @@ CompileXcpp () {
 }
 
 #------------------------------------------------------------------------------
+HelpRun () {
+	echo "Compiles and executes an xcpp file."
+    echo "xcpp.sh run FILE.xcpp"
+}
+
+#------------------------------------------------------------------------------
 CmdRun () {
+	if [[ $# -lt 2 ]]; then
+		HelpRun
+		return
+	fi
 	xcppExecutionArgIndex=$(ProcessXcppGccArgs "${@:2}")
 	((xcppExecutionArgIndex++))
 	CreateTempFiles
@@ -278,21 +288,21 @@ CmdRun () {
 }
 
 #------------------------------------------------------------------------------
-CmdPrintHelpNew () {
+HelpNew () {
 	echo "Creates a new xcpp file."
-    echo "xcpp.sh new FILE [FILE2 ... FILEN]"
+    echo "xcpp.sh new FILE.xcpp [FILE2.xcpp ... FILEN.xcpp]"
 }
 
 #------------------------------------------------------------------------------
-CmdPrintHelpExportHeader () {
-	echo "Exports a header file (.h or .hpp recommended) containing the xcpp environment."
-    echo "xcpp.sh export_h FILE [FILE2 ... FILEN]"
+HelpExportHeader () {
+	echo "Exports a header file containing the xcpp environment."
+    echo "xcpp.sh export_h FILE.h [FILE2.h ... FILEN.h]"
 }
 
 #------------------------------------------------------------------------------
-CmdPrintHelpExportCpp () {
-	echo "Exports a single cpp file containing your xcpp program and the xcpp environment. Allows for standalone compilation."
-    echo "xcpp.sh export INFILE.xcpp OUTFILE"
+HelpExportCpp () {
+	echo "Exports a single cpp file containing your xcpp program and the xcpp environment. Allows for standalone compilation without xcpp."
+    echo "xcpp.sh export INFILE.xcpp OUTFILE.cpp"
 }
 
 #------------------------------------------------------------------------------
@@ -313,7 +323,7 @@ CmdExportHeader () {
 #------------------------------------------------------------------------------
 CmdExportCpp () {
 	if [[ $# -ne 2 ]]; then
-		CmdPrintHelpExportCpp
+		HelpExportCpp
 	elif [[ ! -f "$1" ]]; then
 		echo xcpp error: \""$1"\" not found.
 	elif [[ -f "$2" ]]; then
@@ -328,7 +338,7 @@ CmdExportCpp () {
 #------------------------------------------------------------------------------
 CmdNewXcppFiles () {
 	if [[ $# -lt 1 ]]; then
-		CmdPrintHelpNew
+		HelpNew
 		return
 	fi
 
