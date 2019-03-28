@@ -405,7 +405,7 @@ int $xcppFunctionName( strings args )
 Main() {
 	if [[ $# -lt 1 ]] || [[ $1 == "help" ]]; then
 		CmdPrintHelp
-	elif [[ $1 == "v" ]] || [[ $1 == "version" ]]; then
+	elif [[ $1 == "-v" ]] || [[ $1 == "version" ]]; then
 		echo v"$xcppVersion.$xcppVersionRev"
 	elif [[ $1 == "run" ]]; then
 		CmdRun "$@"
