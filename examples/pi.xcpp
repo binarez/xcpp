@@ -17,22 +17,17 @@ sz obtainIterations( void )
 	return (sz)iters;
 }
 
-f64 calculatePi( sz iterations )
+// Gregory-Leibniz Series: https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80
+int pi( strings args )
 {
-	// Gregory-Leibniz Series: https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80
+	const sz iterations{ obtainIterations() };
 	f64 piValue{ 0 };
 	int denominator{ 1 };
 	int sign{ 1 };
 	for( sz i{ 0 }; i < iterations; ++i, denominator += 2, sign = -sign )
 	{
-		piValue += 4 * sign * (1.f / denominator);
+		piValue += 4 * sign * (1.0 / denominator);
 		println(piValue);
 	}
-	return piValue;
-}
-
-int pi( strings args )
-{
-	println( calculatePi( obtainIterations() ) );
 	return 0;
 }
