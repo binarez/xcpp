@@ -1,0 +1,17 @@
+#if !defined(__XCPP__)
+#define __XCPP__ 0
+#elif defined(__XCPP__)
+#pragma once
+#else
+. xcpp.sh run "$0" "$@"
+#endif
+
+int watch_test( strings args )
+{
+	for_i( sz, 0, INT_MAX )
+	{
+		println(i);
+		sleep_ms(1000);
+	}
+	return 0;
+}

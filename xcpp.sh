@@ -58,9 +58,6 @@ ProcessXcppGccArgs () {
 CreateTempFiles () {
 	xcppElfFile=$(mktemp /tmp/xcpp.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.elf)
 	xcppIncludeFile=$(mktemp /tmp/xcpp.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.h)
-
-	# Trap exit for temp files removal
-	trap "{ rm -f $xcppElfFile; rm -f $xcppIncludeFile; }" EXIT
 }
 
 #------------------------------------------------------------------------------
@@ -311,12 +308,18 @@ CmdRun () {
 		HelpRun
 		return
 	fi
+
 	ProcessXcppGccArgs "${@:2}"
 	((xcppExecutionArgIndex++))
+
 	CreateTempFiles
+	# Trap exit for temp files removal and processes termination
+	trap "{ kill 0; rm -f $xcppElfFile; rm -f $xcppIncludeFile; }" EXIT
 	GenerateXcppHeader $xcppIncludeFile
+
 	local xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
 	CompileXcpp "$xcppFunctionName" "${!xcppExecutionArgIndex}"
+
 	if [[ $1 == "runbg" ]]; then
 		xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:$xcppExecutionArgIndex}" &
 	else
@@ -381,6 +384,8 @@ CmdWatch () {
 		clear
 		disown
 		kill -9 $watchedPID
+		rm -f "$xcppElfFile";
+		rm -f "$xcppIncludeFile";
 		CmdRun runbg "${@:2}"
 		watchedPID=$!
 		lastHash="$newHash"
@@ -429,8 +434,6 @@ Main() {
 	elif [[ $1 == "run" ]]; then
 		CmdRun "$@"
 		exit $?
-	elif [[ $1 == "runbg" ]]; then
-		CmdRun "$@"
 	elif [[ $1 == "watch" ]]; then
 		CmdWatch "$@"
 	elif [[ $1 == "new" ]]; then
