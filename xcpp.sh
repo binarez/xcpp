@@ -46,12 +46,12 @@ ProcessXcppGccArgs () {
 			xcppGccUserOptions="$xcppGccUserOptions $arg"
 		else
 			# We're done
-			echo $i
+			xcppExecutionArgIndex=$i
 			return
 		fi
 		((i=i+1))
 	done
-	echo 1
+	xcppExecutionArgIndex=1
 }
 
 #------------------------------------------------------------------------------
@@ -303,7 +303,7 @@ CmdRun () {
 		HelpRun
 		return
 	fi
-	xcppExecutionArgIndex=$(ProcessXcppGccArgs "${@:2}")
+	ProcessXcppGccArgs "${@:2}"
 	((xcppExecutionArgIndex++))
 	CreateTempFiles
 	GenerateXcppHeader $xcppIncludeFile
