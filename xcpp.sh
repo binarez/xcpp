@@ -31,6 +31,7 @@ xcppGccUserOptions=""
 xcppExecutionArgIndex=1
 xcppElfFile=""
 xcppIncludeFile=""
+xcppWatchDelay=1	# Seconds: 1.5 = 1500 ms
 
 #------------------------------------------------------------------------------
 # TODO : Generalize this to handle all options, xcpp and compiler options
@@ -74,6 +75,36 @@ CmdPrintHelp () {
 	echo ""
 	echo "For example, to run crunch.xcpp with O3 level and native optimizations:"
 	echo "$0 -march=native -O3 crunch.xcpp"
+}
+
+#------------------------------------------------------------------------------
+HelpRun () {
+	echo "Compiles and executes an xcpp file."
+    echo "xcpp.sh run FILE.xcpp"
+}
+
+#------------------------------------------------------------------------------
+HelpWatch () {
+	echo "Compiles, executes and monitors changes to an xcpp file."
+    echo "xcpp.sh watch FILE.xcpp"
+}
+
+#------------------------------------------------------------------------------
+HelpNew () {
+	echo "Creates a new xcpp file."
+    echo "xcpp.sh new FILE.xcpp [FILE2.xcpp ... FILEN.xcpp]"
+}
+
+#------------------------------------------------------------------------------
+HelpExportHeader () {
+	echo "Exports a header file containing the xcpp environment."
+    echo "xcpp.sh export_h FILE.h [FILE2.h ... FILEN.h]"
+}
+
+#------------------------------------------------------------------------------
+HelpExportCpp () {
+	echo "Exports a single cpp file containing your xcpp program and the xcpp environment. Allows for standalone compilation without xcpp."
+    echo "xcpp.sh export INFILE.xcpp OUTFILE.cpp"
 }
 
 #------------------------------------------------------------------------------
@@ -266,16 +297,9 @@ CompileXcpp () {
 }
 
 #------------------------------------------------------------------------------
-HelpRun () {
-	echo "Compiles and executes an xcpp file."
-    echo "xcpp.sh run FILE.xcpp"
-}
-
-#------------------------------------------------------------------------------
 CmdRun () {
 	if [[ $# -lt 2 ]]; then
 		HelpRun
-		return
 	fi
 	xcppExecutionArgIndex=$(ProcessXcppGccArgs "${@:2}")
 	((xcppExecutionArgIndex++))
@@ -284,25 +308,7 @@ CmdRun () {
 	local xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
 	CompileXcpp "$xcppFunctionName" "${!xcppExecutionArgIndex}"
 	xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:$xcppExecutionArgIndex}"
-	exit $xcppExitCode
-}
-
-#------------------------------------------------------------------------------
-HelpNew () {
-	echo "Creates a new xcpp file."
-    echo "xcpp.sh new FILE.xcpp [FILE2.xcpp ... FILEN.xcpp]"
-}
-
-#------------------------------------------------------------------------------
-HelpExportHeader () {
-	echo "Exports a header file containing the xcpp environment."
-    echo "xcpp.sh export_h FILE.h [FILE2.h ... FILEN.h]"
-}
-
-#------------------------------------------------------------------------------
-HelpExportCpp () {
-	echo "Exports a single cpp file containing your xcpp program and the xcpp environment. Allows for standalone compilation without xcpp."
-    echo "xcpp.sh export INFILE.xcpp OUTFILE.cpp"
+	return $xcppExitCode
 }
 
 #------------------------------------------------------------------------------
@@ -333,6 +339,25 @@ CmdExportCpp () {
 		cat "$1" >> "$2"
 		OutputXcppMainCpp $(ExtractFunctionName "$1") >> "$2"
 	fi
+}
+
+#------------------------------------------------------------------------------
+CmdWatch () {
+	if [[ $# -lt 2 ]]; then
+		HelpWatch
+		return
+	fi
+	local lastHash=`sha256sum "$2"`
+	CmdRun "$@"
+	while true; do
+	  sleep $xcppWatchDelay
+	  local newHash=`sha256sum "$2"`
+	  if [ "$newHash" != "$lastHash" ]; then
+		clear
+		CmdRun "$@"
+		lastHash="$newHash"
+	  fi
+	done
 }
 
 #------------------------------------------------------------------------------
@@ -373,6 +398,9 @@ Main() {
 		CmdPrintHelp
 	elif [[ $1 == "run" ]]; then
 		CmdRun "$@"
+		exit $?
+	elif [[ $1 == "watch" ]]; then
+		CmdWatch "$@"
 	elif [[ $1 == "new" ]]; then
 		CmdNewXcppFiles "${@:2}"
 	elif [[ $1 == "export" ]]; then
@@ -381,6 +409,7 @@ Main() {
 		CmdExportHeader "${@:2}"
 	else
 		CmdRun run "$@"
+		exit $?
 	fi
 }
 
