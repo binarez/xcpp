@@ -391,9 +391,11 @@ CmdExportCpp () {
 # Kills a process and deletes temp files
 # $1 PID
 StopProcess () {
-	kill -9 $1
-	rm -f "$xcppElfFile";
-	rm -f "$xcppIncludeFile";
+	kill -9 $1 &> /dev/null || echo -n ""	# Absorb error
+	rm -f "$xcppElfFile"
+	xcppElfFile=""
+	rm -f "$xcppIncludeFile"
+	xcppIncludeFile=""
 }
 
 #------------------------------------------------------------------------------
