@@ -225,9 +225,11 @@ inline void seed_rand( unsigned int seed = 0 )
 #------------------------------------------------------------------------------
 OutputXcppMainCpp () {
 	echo "\
+
 #include <vector>
 #include <string>
 /* #include <clocale> */
+
 int main(int _xcpp_reserved_argc_, const char * _xcpp_reserved_argv_[])
 {
 	/* setlocale( LC_ALL, \"\" ); */
@@ -258,8 +260,7 @@ CompileXcpp () {
 	echo -ne "Compiling with g++ "
 	OutputXcppMainCpp "$1" | 
 	g++ $xcppGccHardcodedOptions $xcppGccUserOptions \
-		-include "$xcppIncludeFile" -D__XCPP_VERSION__=$xcppVersion \
-		-o "$xcppElfFile" \
+		-include "$xcppIncludeFile" -o "$xcppElfFile" \
 		/dev/stdin "$2"
 	echo -ne "\r                       \r"
 }
@@ -319,7 +320,8 @@ CmdExportCpp () {
 		echo xcpp error: \""$2"\" already exists, not overwriting.
 	else
 		GenerateXcppHeader "$2"
-		OutputXcppMainCpp $(ExtractFunctionName "$file") >> "$2"
+		cat "$1" >> "$2"
+		OutputXcppMainCpp $(ExtractFunctionName "$1") >> "$2"
 	fi
 }
 
@@ -333,7 +335,7 @@ CmdNewXcppFiles () {
 	for file in "$@"
 	do
 		if [[ -f "$file" ]]; then
-			echo xcpp warning: \""$file"\" already exists, not overwriting.
+			echo xcpp error: \""$file"\" already exists, not overwriting.
 			continue
 		fi
 		local xcppFunctionName=$(ExtractFunctionName "$file")
