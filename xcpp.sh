@@ -139,10 +139,10 @@ using f32 = float;
 using f64 = double;
 using f128 = __float128; // long double?
 
-template <typename... Args>
-auto str(Args&&... args) -> decltype(std::to_string(std::forward<Args>(args)...))
+template <typename T>
+auto str(T && val)
 {
-	return std::to_string(std::forward<Args>(args)...);
+	return std::to_string(std::forward<T>(val));
 }
 
 inline void newline( void )
@@ -200,16 +200,38 @@ inline void trim(string &s)
 	rtrim(s);
 }
 
-template < typename T >
-inline void print( const T & val )
+template <typename Arg, typename... Args>
+inline void fprint(std::ostream & theStream, Arg&& arg, Args&&... args)
 {
-	cout << val;
+    theStream << std::forward<Arg>(arg);
+    (void)(int[]){0, (void(theStream << std::forward<Args>(args)), 0)...};
 }
 
-template < typename T >
-inline void println( const T & val )
+template <typename Arg, typename... Args>
+inline void fprintln(std::ostream & theStream, Arg&& arg, Args&&... args)
 {
-	cout << val << endl;
+	fprint( theStream, std::forward<Arg>(arg), std::forward<Args>(args)... );
+	std::cout << std::endl;
+}
+
+template <typename Arg, typename... Args>
+inline void print(Arg&& arg, Args&&... args)
+{
+	fprint( std::cout, std::forward<Arg>(arg), std::forward<Args>(args)... );
+}
+
+template <typename Arg, typename... Args>
+inline void println(Arg&& arg, Args&&... args)
+{
+	fprintln( std::cout, arg, std::forward<Args>(args)... );
+}
+
+template <typename Arg, typename... Args>
+inline string concat(Arg&& arg, Args&&... args)
+{
+	ostringstream ss;
+	fprint( ss, std::forward<Arg>(arg), std::forward<Args>(args)... );
+	return ss.str();
 }
 
 template < typename T >
