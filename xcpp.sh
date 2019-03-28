@@ -13,7 +13,7 @@
 # xcpp watch_clang
 # xcpp watch_cl
 
-# xcpp install
+# xcpp config -> install to /usr/local/bin ou choix du path dans $PATH ou custom, choix compilateur
 # xcpp test -> automatically calls the test function of a .xcpp or .xhpp file
 # xcpp time
 # xcpp info
@@ -23,7 +23,7 @@ set -e
 
 #----[ Constants ] ------------------------------------------------------------
 readonly xcppVersion=0
-readonly xcppVersionRev=3
+readonly xcppVersionRev=4
 readonly xcppGccHardcodedOptions="-pipe -xc++"
 readonly xcppWatchDelay=1	# Seconds: 1.5 = 1500 ms
 
@@ -336,7 +336,7 @@ CmdRun () {
 
 	CreateTempFiles
 	# Trap exit for temp files removal and processes termination
-	trap "{ kill 0; rm -f $xcppElfFile; rm -f $xcppIncludeFile; }" EXIT
+	trap "{ rm -f $xcppElfFile; rm -f $xcppIncludeFile; kill 0; }" EXIT
 	GenerateXcppHeader $xcppIncludeFile
 
 	local xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
@@ -388,6 +388,15 @@ CmdExportCpp () {
 }
 
 #------------------------------------------------------------------------------
+# Kills a process and deletes temp files
+# $1 PID
+StopProcess () {
+	kill -9 $1
+	rm -f "$xcppElfFile";
+	rm -f "$xcppIncludeFile";
+}
+
+#------------------------------------------------------------------------------
 # Observe an xcpp file and re-runs it on change.
 # $1 watch command (watch or watch_*)
 # $2 xcpp file to watch
@@ -405,9 +414,7 @@ CmdWatch () {
 	  if [ "$newHash" != "$lastHash" ]; then
 		clear
 		disown
-		kill -9 $watchedPID
-		rm -f "$xcppElfFile";
-		rm -f "$xcppIncludeFile";
+		StopProcess $watchedPID
 		CmdRun runbg "${@:2}"
 		watchedPID=$!
 		lastHash="$newHash"
