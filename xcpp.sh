@@ -114,26 +114,25 @@ GenerateXcppHeader () {
 #define __XCPP_VERSION__ $xcppVersion
 
 #include <bits/stdc++.h>
-using namespace std;
 
 #define for_i(FORI_TYPE, FORI_FROM, FORI_TO) \\
 			  for(FORI_TYPE i{FORI_FROM}; \\
 				((FORI_FROM) < (FORI_TO)) ? (i < (FORI_TO)) : (i > (FORI_TO)); \\
 				((FORI_FROM) < (FORI_TO)) ? ++i : --i )
 
-using strings = vector< string >;
-using sz = size_t;
+using strings = std::vector< std::string >;
+using sz = std::size_t;
 using ssz = ssize_t;
 
-using i8 = int8_t;
-using i16 = int16_t;
-using i32 = int32_t;
-using i64 = int64_t;
+using i8 = std::int8_t;
+using i16 = std::int16_t;
+using i32 = std::int32_t;
+using i64 = std::int64_t;
 
-using u8 = uint8_t;
-using u16 = uint16_t;
-using u32 = uint32_t;
-using u64 = uint64_t;
+using u8 = std::uint8_t;
+using u16 = std::uint16_t;
+using u32 = std::uint32_t;
+using u64 = std::uint64_t;
 
 using f32 = float;
 using f64 = double;
@@ -159,13 +158,13 @@ inline bool within( const T & low, const T & value, const T & hi)
 template < typename CONTAINER_TYPE, typename VALUE_TYPE >
 inline void purge( CONTAINER_TYPE & container, const VALUE_TYPE & value )
 {
-	container.erase( remove( container.begin(), container.end(), value ), container.end() );
+	container.erase( std::remove( container.begin(), container.end(), value ), container.end() );
 }
 
 template < typename CONTAINER_TYPE, typename COMPARE_FUNC >
 inline void purge_if( CONTAINER_TYPE & container, const COMPARE_FUNC & func )
 {
-	container.erase( remove_if( container.begin(), container.end(), func ), container.end() );
+	container.erase( std::remove_if( container.begin(), container.end(), func ), container.end() );
 }
 
 inline int stricmp(const char * a, const char * b)
@@ -178,23 +177,23 @@ inline int stricmp(const char * a, const char * b)
 }
 
 // trim from start (in place)
-inline void ltrim(string &s)
+inline void ltrim(std::string &s)
 {
-	s.erase(s.begin(), find_if(s.begin(), s.end(), [](int ch) {
-		return !isspace(ch);
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) {
+		return !std::isspace(ch);
 	}));
 }
 
 // trim from end (in place)
-inline void rtrim(string &s)
+inline void rtrim(std::string &s)
 {
-	s.erase(find_if(s.rbegin(), s.rend(), [](int ch) {
-		return !isspace(ch);
+	s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) {
+		return !std::isspace(ch);
 	}).base(), s.end());
 }
 
 // trim from both ends (in place)
-inline void trim(string &s)
+inline void trim(std::string &s)
 {
 	ltrim(s);
 	rtrim(s);
@@ -211,7 +210,7 @@ template <typename Arg, typename... Args>
 inline void fprintln(std::ostream & theStream, Arg&& arg, Args&&... args)
 {
 	fprint( theStream, std::forward<Arg>(arg), std::forward<Args>(args)... );
-	std::cout << std::endl;
+	theStream << std::endl;
 }
 
 template <typename Arg, typename... Args>
@@ -223,13 +222,13 @@ inline void print(Arg&& arg, Args&&... args)
 template <typename Arg, typename... Args>
 inline void println(Arg&& arg, Args&&... args)
 {
-	fprintln( std::cout, arg, std::forward<Args>(args)... );
+	fprintln( std::cout, std::forward<Arg>(arg), std::forward<Args>(args)... );
 }
 
 template <typename Arg, typename... Args>
-inline string concat(Arg&& arg, Args&&... args)
+inline std::string concat(Arg&& arg, Args&&... args)
 {
-	ostringstream ss;
+	std::ostringstream ss;
 	fprint( ss, std::forward<Arg>(arg), std::forward<Args>(args)... );
 	return ss.str();
 }
@@ -237,42 +236,44 @@ inline string concat(Arg&& arg, Args&&... args)
 template < typename T >
 inline bool read( T & val )
 {
-	const bool ok{ ( cin >> val ) };
+	const bool ok{ ( std::cin >> val ) };
 	if( !ok )
 	{
-		cin.clear();
+		std::cin.clear();
 	}
-	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	return ok;
 }
 
-inline bool readln( string & val )
+inline bool readln( std::string & val )
 {
-	return static_cast< bool >( getline( cin, val ) );
+	return static_cast< bool >( std::getline( std::cin, val ) );
 }
 
 inline void press_enter()
 {
 	print(\"Press Enter to continue...\");
-	cin.get();
+	std::cin.get();
 }
 
 inline void seed_rand( unsigned int seed = 0 )
 {
 	if( seed == 0 )
 	{
-		srand( static_cast< unsigned int >( time( NULL ) ) );
+		std::srand( static_cast< unsigned int >( std::time( NULL ) ) );
 	}
 	else
 	{
-		srand( seed );
+		std::srand( seed );
 	}
 }
 
 inline void sleep_ms( sz msTime )
 {
-	std::this_thread::sleep_for( chrono::milliseconds(msTime) );
+	std::this_thread::sleep_for( std::chrono::milliseconds(msTime) );
 }
+
+using namespace std;
 
 #endif // _XCPP_HEADER_RESERVED_H_ \
 " 		> "$1"
