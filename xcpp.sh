@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# xcpp build
-# xcpp clean
-
 # xcpp run_gcc
 # xcpp run_clang
 # xcpp run_cl
@@ -156,11 +153,6 @@ auto str(T && val)
 	return std::to_string(std::forward<T>(val));
 }
 
-inline void newline( void )
-{
-	std::cout << std::endl;
-}
-
 template< typename T >
 inline bool within( const T & low, const T & value, const T & hi)
 {
@@ -211,55 +203,80 @@ inline void trim(std::string &s)
 	rtrim(s);
 }
 
-template <typename Arg, typename... Args>
-inline void fprint(std::ostream & theStream, Arg&& arg, Args&&... args)
+inline void newline( void )
 {
-    theStream << std::forward<Arg>(arg);
-    (void)(int[]){0, (void(theStream << std::forward<Args>(args)), 0)...};
+	std::cout << std::endl;
+}
+
+inline void snewline( std::ostream & o )
+{
+	o << std::endl;
 }
 
 template <typename Arg, typename... Args>
-inline void fprintln(std::ostream & theStream, Arg&& arg, Args&&... args)
+inline void sprint(std::ostream & o, Arg&& arg, Args&&... args)
 {
-	fprint( theStream, std::forward<Arg>(arg), std::forward<Args>(args)... );
-	theStream << std::endl;
+    o << std::forward<Arg>(arg);
+    (void)(int[]){0, (void(o << std::forward<Args>(args)), 0)...};
+}
+
+template <typename Arg, typename... Args>
+inline void sprintln(std::ostream & o, Arg&& arg, Args&&... args)
+{
+	sprint( o, std::forward<Arg>(arg), std::forward<Args>(args)... );
+	o << std::endl;
 }
 
 template <typename Arg, typename... Args>
 inline void print(Arg&& arg, Args&&... args)
 {
-	fprint( std::cout, std::forward<Arg>(arg), std::forward<Args>(args)... );
+	sprint( std::cout, std::forward<Arg>(arg), std::forward<Args>(args)... );
 }
 
 template <typename Arg, typename... Args>
 inline void println(Arg&& arg, Args&&... args)
 {
-	fprintln( std::cout, std::forward<Arg>(arg), std::forward<Args>(args)... );
+	sprintln( std::cout, std::forward<Arg>(arg), std::forward<Args>(args)... );
 }
 
 template <typename Arg, typename... Args>
 inline std::string concat(Arg&& arg, Args&&... args)
 {
 	std::ostringstream ss;
-	fprint( ss, std::forward<Arg>(arg), std::forward<Args>(args)... );
+	sprint( ss, std::forward<Arg>(arg), std::forward<Args>(args)... );
 	return ss.str();
 }
 
-template < typename T >
-inline bool read( T & val )
+template <typename Arg, typename... Args>
+inline bool sread( std::istream & i, Arg && arg, Args&&... args )
 {
-	const bool ok{ ( std::cin >> val ) };
+	bool ok{ ( i >> std::forward<Arg>(arg) ) };
+	if( ok )
+	{
+		(void)(int[]){0, (void((i >> std::forward<Args>(args)) ? 0 : (ok = false, 0) ), 0)...};
+	}
 	if( !ok )
 	{
-		std::cin.clear();
+		i.clear();
 	}
-	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	i.ignore(std::numeric_limits<std::streamsize>::max() - 1, '\n');
 	return ok;
+}
+
+template <typename Arg, typename... Args>
+inline bool read(Arg&& arg, Args&&... args)
+{
+	return sread( std::cin, std::forward<Arg>(arg), std::forward<Args>(args)... );
+}
+
+inline bool sreadln( std::istream & i, std::string & val )
+{
+	return static_cast< bool >( std::getline( i, val ) );
 }
 
 inline bool readln( std::string & val )
 {
-	return static_cast< bool >( std::getline( std::cin, val ) );
+	return sreadln( std::cin, val );
 }
 
 inline void press_enter()
@@ -327,7 +344,7 @@ ExtractFunctionName () {
 #------------------------------------------------------------------------------
 CompileXcpp () {
 	echo -ne "Compiling with g++ "
-	OutputXcppMainCpp "$1" | 
+	OutputXcppMainCpp "$1" |
 	g++ $xcppGccHardcodedOptions $xcppGccUserOptions \
 		-include "$xcppIncludeFile" -o "$xcppElfFile" \
 		/dev/stdin "$2"
@@ -500,10 +517,10 @@ int $xcppFunctionName( strings args )
 
 #------------------------------------------------------------------------------
 Main() {
-	if [[ $# -lt 1 ]] || [[ $1 == "help" ]]; then
+	if [[ $# -lt 1 ]] || [[ $1 == "-h" ]] || [[ $1 == "--help" ]] || [[ $1 == "help" ]]; then
 		CmdPrintHelp
-	elif [[ $1 == "-v" ]] || [[ $1 == "version" ]]; then
-		echo v"$xcppVersion.$xcppVersionRev"
+	elif [[ $1 == "-v" ]] || [[ $1 == "--version" ]] || [[ $1 == "version" ]]; then
+		echo "xcpp v$xcppVersion.$xcppVersionRev"
 	elif [[ $1 == "run" ]]; then
 		CmdRun "$@"
 		exit $?
@@ -517,9 +534,10 @@ Main() {
 		CmdExportCpp "${@:2}"
 	elif [[ $1 == "export_h" ]]; then
 		CmdExportHeader "${@:2}"
-	else # Defaults to run
-		CmdRun defrun "$@"
-		exit $?
+	else
+		echo "xcpp error: unknown subcommand ($1)"
+		echo "try 'xcpp help'            xcpp v$xcppVersion.$xcppVersionRev"
+		exit 42
 	fi
 }
 
