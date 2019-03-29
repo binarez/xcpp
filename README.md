@@ -84,16 +84,19 @@ The xcpp keywords and reserved identifiers are:
 * Of course, all the C++ keywords: https://en.cppreference.com/w/cpp/keyword
 * Because xcpp preincludes all the C++ standard library, all the std symbols: https://en.cppreference.com/w/cpp/symbol_index
 * xcpp adds some of its own identifiers and reserved keywords:
-  * read
-  * readln
+  * concat
   * print
   * println
+  * fprint
+  * fprintln
   * newline
+  * read
+  * readln
+  * for_i
   * str
   * strings
   * sz
   * ssz
-  * for_i
   * i8
   * i16
   * i32
@@ -112,8 +115,26 @@ The xcpp keywords and reserved identifiers are:
   * trim
   * rtrim
   * ltrim
+  * sleep_ms
   * press_enter
   * main
   * \_\_XCPP_VERSION\_\_
   * \_\_XCPP\_\_
   * \_\_XCPP_RESERVED_HEADER_H\_\_
+
+  # TODO
+  
+  * Build
+  * Clean
+  * Compilers gcc, clang, cl.exe and custom (run_*)
+  * Generate xhpp from make_xhpp.sh et un dossier ./src contenant le source de la lib en C++
+  
+  Example of package structure:
+  * stb_perlin
+  ** 0.2
+  *** make_xhpp.sh
+  *** src/
+  ** 0.4
+  *** make_xhpp.sh
+  *** src/
+  
