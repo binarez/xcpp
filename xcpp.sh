@@ -55,8 +55,13 @@ ProcessXcppGccArgs () {
 }
 
 #------------------------------------------------------------------------------
+# [$1] optional : elf file name
 CreateTempFiles () {
-	xcppElfFile=$(mktemp /tmp/xcpp.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.elf)
+	if [[ -z $1 ]]; then
+		xcppElfFile=$(mktemp /tmp/xcpp.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.elf)
+	else
+		xcppElfFile="$1"
+	fi
 	xcppIncludeFile=$(mktemp /tmp/xcpp.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.h)
 }
 
@@ -78,6 +83,13 @@ CmdPrintHelp () {
 HelpRun () {
 	echo "Compiles and executes an xcpp file."
     echo "xcpp.sh run FILE.xcpp"
+}
+
+#------------------------------------------------------------------------------
+HelpBuild () {
+	echo "Builds an xcpp file into an executable binary."
+    echo "xcpp.sh build FILE.xcpp [FILE.out]"
+	echo " FILE.out defaults to FILE.xcpp.out if not specified"
 }
 
 #------------------------------------------------------------------------------
@@ -352,6 +364,35 @@ CmdRun () {
 }
 
 #------------------------------------------------------------------------------
+# Builds an xcpp file
+# $1 command: build, build_*
+# $2 xcpp file to build
+# [$3] optional : output elf file name
+CmdBuild () {
+	if [[ $# -lt 2 ]]; then
+		HelpBuild
+		return
+	fi
+	local elfToBuild="$3"
+	if [[ -z "$elfToBuild" ]]; then
+		elfToBuild="./$(basename "$2").out"
+	elif [[ -d "$elfToBuild" ]]; then
+		elfToBuild="$elfToBuild/$(basename "$2").out"
+	fi
+
+	ProcessXcppGccArgs "${@:2}"
+	((xcppExecutionArgIndex++))
+
+	CreateTempFiles "$elfToBuild"
+	# Trap exit for temp files removal and processes termination
+	trap "{ rm -f $xcppIncludeFile; }" EXIT
+	GenerateXcppHeader $xcppIncludeFile
+
+	local xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
+	CompileXcpp "$xcppFunctionName" "${!xcppExecutionArgIndex}"
+}
+
+#------------------------------------------------------------------------------
 # [$1] Header file to produce (output): defaults to xcpp.h if not specified
 CmdExportHeader () {
 	if [[ $# -lt 1 ]]; then
@@ -468,6 +509,8 @@ Main() {
 		exit $?
 	elif [[ $1 == "watch" ]]; then
 		CmdWatch "$@"
+	elif [[ $1 == "build" ]]; then
+		CmdBuild "$@"
 	elif [[ $1 == "new" ]]; then
 		CmdNewXcppFiles "${@:2}"
 	elif [[ $1 == "export" ]]; then
