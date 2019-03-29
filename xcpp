@@ -347,11 +347,12 @@ ExtractFunctionName () {
 
 #------------------------------------------------------------------------------
 CompileXcpp () {
+	local xcppFunctionName=$(ExtractFunctionName "$1")
 	echo -ne "Compiling with g++ "
-	OutputXcppMainCpp "$1" |
+	OutputXcppMainCpp "$xcppFunctionName" |
 	g++ $xcppGccHardcodedOptions $xcppGccUserOptions \
 		-include "$xcppIncludeFile" -o "$xcppElfFile" \
-		/dev/stdin "$2"
+		/dev/stdin "$1"
 	echo -ne "\r                       \r"
 }
 
@@ -373,8 +374,7 @@ CmdRun () {
 	trap "{ rm -f $xcppElfFile; rm -f $xcppIncludeFile; kill 0; }" EXIT
 	GenerateXcppHeader $xcppIncludeFile
 
-	local xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
-	CompileXcpp "$xcppFunctionName" "${!xcppExecutionArgIndex}"
+	CompileXcpp "${!xcppExecutionArgIndex}"
 
 	if [[ $1 == "runbg" ]]; then
 		xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:$xcppExecutionArgIndex}" &
