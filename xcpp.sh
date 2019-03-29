@@ -12,7 +12,6 @@
 
 # xcpp config -> install to /usr/local/bin ou choix du path dans $PATH ou custom, choix compilateur
 # xcpp test -> automatically calls the test function of a .xcpp or .xhpp file
-# xcpp time
 # xcpp info
 
 # Stop execution on error
@@ -20,7 +19,7 @@ set -e
 
 #----[ Constants ] ------------------------------------------------------------
 readonly xcppVersion=0
-readonly xcppVersionRev=5
+readonly xcppVersionRev=6
 readonly xcppGccHardcodedOptions="-pipe -xc++"
 readonly xcppWatchDelay=1	# Seconds: 1.5 = 1500 ms
 
@@ -123,11 +122,6 @@ GenerateXcppHeader () {
 #define __XCPP_VERSION__ $xcppVersion
 
 #include <bits/stdc++.h>
-
-#define for_i(FORI_TYPE, FORI_FROM, FORI_TO) \\
-			  for(FORI_TYPE i{FORI_FROM}; \\
-				((FORI_FROM) < (FORI_TO)) ? (i < (FORI_TO)) : (i > (FORI_TO)); \\
-				((FORI_FROM) < (FORI_TO)) ? ++i : --i )
 
 using strings = std::vector< std::string >;
 using sz = std::size_t;
@@ -450,7 +444,10 @@ CmdExportCpp () {
 # Kills a process and deletes temp files
 # $1 PID
 StopProcess () {
-	kill -9 $1 &> /dev/null || echo -n ""	# Absorb error
+	if ps -p "$1" | grep -q 'xcpp'; then
+		echo "Killing"
+		kill -9 $1 &> /dev/null || echo -n ""	# Absorb error
+	fi
 	rm -f "$xcppElfFile"
 	xcppElfFile=""
 	rm -f "$xcppIncludeFile"
@@ -536,7 +533,7 @@ Main() {
 		CmdExportHeader "${@:2}"
 	else
 		echo "xcpp error: unknown subcommand ($1)"
-		echo "try 'xcpp help'            xcpp v$xcppVersion.$xcppVersionRev"
+		echo "try 'xcpp help'"
 		exit 42
 	fi
 }

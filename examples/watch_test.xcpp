@@ -8,7 +8,7 @@
 
 int watch_test( strings args )
 {
-	for_i( sz, 0, INT_MAX )
+	for( int i{ 1 }; i <= 10; ++i )
 	{
 		println(i);
 		sleep_ms(1000);
