@@ -23,7 +23,7 @@ set -e
 
 #----[ Constants ] ------------------------------------------------------------
 readonly xcppVersion=0
-readonly xcppVersionRev=4
+readonly xcppVersionRev=5
 readonly xcppGccHardcodedOptions="-pipe -xc++"
 readonly xcppWatchDelay=1	# Seconds: 1.5 = 1500 ms
 
