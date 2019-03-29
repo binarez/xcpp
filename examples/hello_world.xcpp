@@ -6,7 +6,7 @@
 . xcpp.sh run "$0" "$@"
 #endif
 
-int hello_world( strings arguments )
+int hello_world( strings args )
 {
 	println( "Hello, world!" );
 	return 0;
