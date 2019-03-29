@@ -62,8 +62,13 @@ CreateTempFiles () {
 }
 
 #------------------------------------------------------------------------------
+PrintVersion () {
+	echo "xcpp v$xcppVersion.$xcppVersionRev"
+}
+
+#------------------------------------------------------------------------------
 CmdPrintHelp () {
-    echo "xcpp v$xcppVersion.$xcppVersionRev"
+	PrintVersion
 	echo ""
 	echo "usage:"
 	echo "$0 FILE.xcpp [ARG1 ARG2 ... ARGN]"
@@ -353,7 +358,9 @@ CompileXcpp () {
 	g++ $xcppGccHardcodedOptions $xcppGccUserOptions \
 		-include "$xcppIncludeFile" -o "$xcppElfFile" \
 		/dev/stdin "$1"
+	local compilerRetVal=$?
 	echo -ne "\r                       \r"
+	return $compilerRetVal
 }
 
 #------------------------------------------------------------------------------
@@ -375,13 +382,16 @@ CmdRun () {
 	GenerateXcppHeader $xcppIncludeFile
 
 	CompileXcpp "${!xcppExecutionArgIndex}"
-
-	if [[ $1 == "runbg" ]]; then
-		xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:$xcppExecutionArgIndex}" &
+	if [[ $? -eq 0 ]]; then
+		if [[ $1 == "runbg" ]]; then
+			xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:$xcppExecutionArgIndex}" &
+		else
+			xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:$xcppExecutionArgIndex}"
+		fi
+		return $xcppExitCode
 	else
-		xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:$xcppExecutionArgIndex}"
+		return $?
 	fi
-	return $xcppExitCode
 }
 
 #------------------------------------------------------------------------------
@@ -409,8 +419,7 @@ CmdBuild () {
 	trap "{ rm -f $xcppIncludeFile; }" EXIT
 	GenerateXcppHeader $xcppIncludeFile
 
-	local xcppFunctionName=$(ExtractFunctionName "${!xcppExecutionArgIndex}")
-	CompileXcpp "$xcppFunctionName" "${!xcppExecutionArgIndex}"
+	CompileXcpp "${!xcppExecutionArgIndex}"
 }
 
 #------------------------------------------------------------------------------
@@ -481,7 +490,7 @@ CmdWatch () {
 	  local newHash=`sha256sum "$2"`
 	  if [ "$newHash" != "$lastHash" ]; then
 		clear
-		disown
+		disown &> /dev/null
 		StopProcess $watchedPID
 		CmdRun runbg "${@:2}"
 		watchedPID=$!
@@ -527,7 +536,7 @@ Main() {
 	if [[ $# -lt 1 ]] || [[ $1 == "-h" ]] || [[ $1 == "--help" ]] || [[ $1 == "help" ]]; then
 		CmdPrintHelp
 	elif [[ $1 == "-v" ]] || [[ $1 == "--version" ]] || [[ $1 == "version" ]]; then
-		echo "xcpp v$xcppVersion.$xcppVersionRev"
+		PrintVersion
 	elif [[ $1 == "run" ]]; then
 		CmdRun "$@"
 		exit $?
@@ -535,6 +544,7 @@ Main() {
 		CmdWatch "$@"
 	elif [[ $1 == "build" ]]; then
 		CmdBuild "$@"
+		exit $?
 	elif [[ $1 == "new" ]]; then
 		CmdNewXcppFiles "${@:2}"
 	elif [[ $1 == "export" ]]; then
