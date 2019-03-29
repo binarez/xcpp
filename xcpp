@@ -197,6 +197,16 @@ inline void trim(std::string &s)
 	rtrim(s);
 }
 
+inline void to_lower( std::string & s )
+{
+	std::transform(s.begin(), s.end(), s.begin(), std::ptr_fun<int, int>(std::tolower));
+}
+
+inline void to_upper( std::string & s )
+{
+	std::transform(s.begin(), s.end(), s.begin(), std::ptr_fun<int, int>(std::tolower));
+}
+
 inline void newline( void )
 {
 	std::cout << std::endl;
@@ -445,8 +455,7 @@ CmdExportCpp () {
 # $1 PID
 StopProcess () {
 	if ps -p "$1" | grep -q 'xcpp'; then
-		echo "Killing"
-		kill -9 $1 &> /dev/null || echo -n ""	# Absorb error
+		kill -9 $1 &> /dev/null
 	fi
 	rm -f "$xcppElfFile"
 	xcppElfFile=""
@@ -463,6 +472,7 @@ CmdWatch () {
 		HelpWatch
 		return
 	fi
+	set +e
 	local lastHash=`sha256sum "$2"`
 	CmdRun runbg "${@:2}"
 	local watchedPID=$!
