@@ -63,7 +63,7 @@ CreateTempFiles () {
 
 #------------------------------------------------------------------------------
 CmdPrintHelp () {
-    echo "xcpp.sh v$xcppVersion.$xcppVersionRev"
+    echo "xcpp v$xcppVersion.$xcppVersionRev"
 	echo ""
 	echo "usage:"
 	echo "$0 FILE.xcpp [ARG1 ARG2 ... ARGN]"
@@ -78,39 +78,39 @@ CmdPrintHelp () {
 #------------------------------------------------------------------------------
 HelpRun () {
 	echo "Compiles and executes an xcpp file."
-    echo "xcpp.sh run FILE.xcpp"
+    echo "xcpp run FILE.xcpp"
 }
 
 #------------------------------------------------------------------------------
 HelpBuild () {
 	echo "Builds an xcpp file into an executable binary."
-    echo "xcpp.sh build FILE.xcpp [FILE.out]"
+    echo "xcpp build FILE.xcpp [FILE.out]"
 	echo " FILE.out defaults to FILE.xcpp.out if not specified"
 }
 
 #------------------------------------------------------------------------------
 HelpWatch () {
 	echo "Compiles, executes and monitors changes to an xcpp file."
-    echo "xcpp.sh watch FILE.xcpp"
+    echo "xcpp watch FILE.xcpp"
 }
 
 #------------------------------------------------------------------------------
 HelpNew () {
 	echo "Creates a new xcpp file."
-    echo "xcpp.sh new FILE.xcpp [FILE2.xcpp ... FILEN.xcpp]"
+    echo "xcpp new FILE.xcpp [FILE2.xcpp ... FILEN.xcpp]"
 }
 
 #------------------------------------------------------------------------------
 HelpExportHeader () {
 	echo "Exports a header file containing the xcpp environment."
-    echo "xcpp.sh export_h [FILE.h]"
+    echo "xcpp export_h [FILE.h]"
 	echo " FILE.h defaults to xcpp.h if not specified"
 }
 
 #------------------------------------------------------------------------------
 HelpExportCpp () {
 	echo "Exports a single cpp file containing your xcpp program and the xcpp environment. Allows for standalone compilation without xcpp."
-    echo "xcpp.sh export INFILE.xcpp OUTFILE.cpp"
+    echo "xcpp export INFILE.xcpp OUTFILE.cpp"
 }
 
 #------------------------------------------------------------------------------
@@ -500,7 +500,7 @@ CmdNewXcppFiles () {
 #elif defined(__XCPP__)
 #pragma once
 #else
-. xcpp.sh run \"\$0\" \"\$@\"
+. xcpp run \"\$0\" \"\$@\"
 #endif
 
 int $xcppFunctionName( strings args )

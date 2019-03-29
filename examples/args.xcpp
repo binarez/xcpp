@@ -3,7 +3,7 @@
 #elif defined(__XCPP__)
 #pragma once
 #else
-. xcpp.sh run "$0" "$@"
+. xcpp run "$0" "$@"
 #endif
 
 // Prints all command arguments
