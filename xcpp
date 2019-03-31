@@ -13,7 +13,7 @@
 # xcpp config -> install to /usr/local/bin ou choix du path dans $PATH ou custom, choix compilateur
 # xcpp test -> automatically calls the test function of a .xcpp or .xhpp file
 # xcpp info
-
+# xcpp show FILE.xhpp or FILE.xcpp -> prints the first comment in the source file
 # Stop execution on error
 set -e
 
