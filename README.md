@@ -1,8 +1,13 @@
 # xcpp
 
-TODO FIX description
+xcpp is convention over configuration for C++. It is a tool that lets you write, run, watch and build C++ code quickly and simply. xcpp stands for execute C++. It compiles and runs your code in a pre-configured environment: you just write C++. The xcpp environment preincludes all C++ Standard Library headers and it is "using namespace std;" all of it for you. In addition to having all the std namespace ready to use, xcpp provides extra basic functions and types to simplify your C++ development, like simplified handling of i/o streams errors (print and read functions), string manipulations (trim, rtrim, ltrim, concat, concat_range) and new algorithms like purge and purge_if algorithms (purge is erase–remove, a well-known C++ idiom).
 
+xcpp can compile with g++ (or gcc) and clang. 
 xcpp stands for eXecute C++: a bash script that runs C++ source code quickly. xcpp is C++ in a preconfigured environnement in which . There are some downsides to using xcpp:  xcpp lets you write C++ code in a preconfigured environnement in which . xcpp is mainly built for quick, dirty and small programes. You can think of it as C++ scripting if you like. Remember that it is compiled. If you some code processing a lot of data, you will benefit from using xcpp because you will be running . If you are writing You do not have to worry about which part of STL to include: it is all included. Every single C++ standard library is preincluded . You are not permitted to define a main() function.
+
+# Install
+
+xcpp is a self-contained bash script: just download the "xcpp" file and copy it where it can be run, like /usr/local/bin or somewhere else that is in your $PATH.
 
 # How does it work?
 
@@ -22,18 +27,16 @@ With comments:
     #define __XCPP__ 0        // We're in the main program file, define the xcpp version (0: in development).
     #elif defined(__XCPP__) // Else if __XCPP__ is already defined, we're in header mode:
     #pragma once              // Prevent multi inclusion.
-    #else                   // Else: the case that is never true never reaches the C++ compiler.
+    #else                   // Else: this case is never true so it never reaches the C++ compiler.
     . xcpp.sh "$0" "$@"     // All the previous lines are bash comments, now call the xcpp launcher.
     #endif
 
-After that, you are free to write xcpp C++ code.
+After these 7 lines short lines, you are free to write xcpp C++ code and the xcpp tool will be able to run, watch, build and test that code.
 
-If you run a file named "filename.xcpp", the launcher compiles your source code and runs the function "filename", which needs to accept the command arguments (reference to vector of strings) and must return an integer (the exit code of the script). Command arguments are forwarded to your C++ code.
+If you run a file named "filename.xcpp", the launcher compiles your source code and runs the function "filename". Command arguments are forwarded to your C++ code as strings to this function.
 
-# Install
-xcpp is a self-contained bash script, just download xcpp.sh and copy it where it can be run, like /usr/local/bin or somewhere else that is in your $PATH.
+Here's the xcpp hello world example:
 
-# Example 1:  hello_world.xcpp
     #if !defined(__XCPP__)
     #define __XCPP__ 0
     #elif defined(__XCPP__)
@@ -47,6 +50,10 @@ xcpp is a self-contained bash script, just download xcpp.sh and copy it where it
     	println( "Hello, world!" );
     	return 0;
     }
+
+To run, simply:
+
+    xcpp run hello_world.xcpp
 
 To run, first make it executable:
 
@@ -122,11 +129,8 @@ The xcpp keywords and reserved identifiers are:
   * \_\_XCPP\_\_
   * \_\_XCPP_RESERVED_HEADER_H\_\_
 
-  # TODO
+  # Scratch pad
   
-  * Build
-  * Clean
-  * Compilers gcc, clang, cl.exe and custom (run_*)
   * Generate xhpp from make_xhpp.sh et un dossier ./src contenant le source de la lib en C++
   
   Example of package structure:
