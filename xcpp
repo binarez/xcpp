@@ -1,38 +1,89 @@
 #!/usr/bin/env bash
+# Copyright (C) 2018-2019 Stéphane Duguay <s@binarez.com>
+# This file may be used under the terms of the GNU General Public License, version 2 or later.
+# For more details see: https://www.gnu.org/licenses/gpl-2.0.html
 
-# xcpp run_gcc
-# xcpp run_clang
-# xcpp run_cl
-# xcpp build_gcc
-# xcpp build_clang
-# xcpp build_cl
-# xcpp watch_gcc
-# xcpp watch_clang
-# xcpp watch_cl
+# xcpp run --locale="fr" --boost -- -O3 qweqwe.xcpp
+# xcpp run ~~clang ~~locale="fr" --*boost --options="-O3 -march=native" qweqwe.xcpp
+
+# -h --help
+# --version
+# -c --compiler
+# -l --locale
+# -b --boost
+# -v --verbose
+# -m --mode (debug, release, custom, etc.)
+# -o --options
+# -f --force
+# -i --config
 
 # xcpp config -> install to /usr/local/bin ou choix du path dans $PATH ou custom, choix compilateur
 # xcpp test -> automatically calls the test function of a .xcpp or .xhpp file
 # xcpp info
 # xcpp show FILE.xhpp or FILE.xcpp -> prints the first comment in the source file
+
 # Stop execution on error
 set -e
 
+#----[ Compilers setup ] ------------------------------------------------------------
+xcpp_g++ () {
+	echo g++ -pipe -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
+}
+
+xcpp_g++_debug () {
+	echo g++ -g -pipe -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
+}
+
+xcpp_g++_release () {
+	echo g++ -O3 -pipe -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
+}
+
+xcpp_gcc () {
+	echo gcc -pipe -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName -lstdc++
+}
+
+xcpp_gcc_debug () {
+	echo gcc -g -pipe -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName -lstdc++
+}
+
+xcpp_gcc_release () {
+	echo gcc -O3 -pipe -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName -lstdc++
+}
+
+xcpp_clang () {
+	echo clang -pipe -lstdc++ -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
+}
+
+xcpp_clang_debug () {
+	echo clang -g -pipe -lstdc++ -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
+}
+
+xcpp_clang_release () {
+	echo clang -O3 -pipe -lstdc++ -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
+}
+
 #----[ Constants ] ------------------------------------------------------------
 readonly xcppVersion=0
-readonly xcppVersionRev=6
-readonly xcppGccHardcodedOptions="-pipe -xc++"
+readonly xcppVersionRev=7
 readonly xcppWatchDelay=1	# Seconds: 1.5 = 1500 ms
+readonly xcppUserConfig="~/.xcpp/xcpp.config"
+readonly xcppDirectoryConfig="./xcpp.config"
 
 #----[ Variables ] ------------------------------------------------------------
-xcppGccUserOptions=""
+xcppCompilerUserOptions=""
 xcppExecutionArgIndex=1
 xcppElfFile=""
 xcppIncludeFile=""
 
+#----[ Config: default values ] -----------------------------------------------
+xcppCfgCompiler="gcc"
+xcppCfgMode=""
+xcppCfgCompilerOptions=""
+xcppCfgVerbose=1
+xcppCfgBoost=0
+xcppCfgLocale=""
+
 #------------------------------------------------------------------------------
-# TODO : Generalize this to handle all options, xcpp and compiler options
-# Handle setlocale with -xcpp_locale option
-# -xcpp_boost option
 ProcessXcppGccArgs () {
 	i=1;
 	for arg in "$@"
@@ -63,7 +114,7 @@ CreateTempFiles () {
 
 #------------------------------------------------------------------------------
 PrintVersion () {
-	echo "xcpp v$xcppVersion.$xcppVersionRev"
+	echo "xcpp $xcppVersion.$xcppVersionRev"
 }
 
 #------------------------------------------------------------------------------
@@ -229,10 +280,32 @@ inline void sprint(std::ostream & o, Arg&& arg, Args&&... args)
     (void)(int[]){0, (void(o << std::forward<Args>(args)), 0)...};
 }
 
+template <typename CONTAINER_TYPE>
+inline void sprint_range(std::ostream & o, const CONTAINER_TYPE & c, char separator = ' ')
+{
+	auto i{ begin(c) };
+	const auto e{ end(c) };
+	if( i != e )
+	{
+		o << *i;
+		for( ++i; i != e; ++i )
+		{
+			o << separator << *i;
+		}
+	}
+}
+
 template <typename Arg, typename... Args>
 inline void sprintln(std::ostream & o, Arg&& arg, Args&&... args)
 {
 	sprint( o, std::forward<Arg>(arg), std::forward<Args>(args)... );
+	o << std::endl;
+}
+
+template <typename CONTAINER_TYPE>
+inline void sprintln_range(std::ostream & o, const CONTAINER_TYPE & c, char separator = ' ')
+{
+	sprint_range( o, c, separator );
 	o << std::endl;
 }
 
@@ -248,11 +321,31 @@ inline void println(Arg&& arg, Args&&... args)
 	sprintln( std::cout, std::forward<Arg>(arg), std::forward<Args>(args)... );
 }
 
+template <typename CONTAINER_TYPE>
+inline void print_range(const CONTAINER_TYPE & c, char separator = ' ')
+{
+	sprint_range( std::cout, c, separator );
+}
+
+template <typename CONTAINER_TYPE>
+inline void println_range(const CONTAINER_TYPE & c, char separator = ' ')
+{
+	sprintln_range( std::cout, c, separator );
+}
+
 template <typename Arg, typename... Args>
 inline std::string concat(Arg&& arg, Args&&... args)
 {
 	std::ostringstream ss;
 	sprint( ss, std::forward<Arg>(arg), std::forward<Args>(args)... );
+	return ss.str();
+}
+
+template <typename CONTAINER_TYPE>
+inline std::string concat_range(const CONTAINER_TYPE & c, char separator = ' ')
+{
+	std::ostringstream ss;
+	sprint_range( ss, c, separator );
 	return ss.str();
 }
 
@@ -352,14 +445,17 @@ ExtractFunctionName () {
 
 #------------------------------------------------------------------------------
 CompileXcpp () {
+	local xcppFileName="$1"
 	local xcppFunctionName=$(ExtractFunctionName "$1")
-	echo -ne "Compiling with g++ "
-	OutputXcppMainCpp "$xcppFunctionName" |
-	g++ $xcppGccHardcodedOptions $xcppGccUserOptions \
-		-include "$xcppIncludeFile" -o "$xcppElfFile" \
-		/dev/stdin "$1"
+	if [[ $xcppCfgVerbose -ne 0 ]]; then
+		echo Compile command: $("xcpp_$xcppCfgCompiler")
+		echo "---"
+	else
+		echo -ne "Compiling with $xcppCfgCompiler"
+	fi
+	OutputXcppMainCpp "$xcppFunctionName" | $("xcpp_$xcppCfgCompiler")
 	local compilerRetVal=$?
-	echo -ne "\r                       \r"
+	echo -ne "\r                                                                                                     \r"
 	return $compilerRetVal
 }
 
@@ -532,12 +628,54 @@ int $xcppFunctionName( strings args )
 }
 
 #------------------------------------------------------------------------------
+# $1 Config file name
+LoadConfigFile () {
+. $1
+}
+
+#------------------------------------------------------------------------------
+# $1 variable name
+EchoVarAndValue () {
+	local varName="$1"
+	echo "$varName": ${!varName}
+}
+#------------------------------------------------------------------------------
+PrintConfig () {
+	EchoVarAndValue xcppCfgCompiler
+	type $"xcpp_$xcppCfgCompiler"
+	EchoVarAndValue xcppCfgMode
+	EchoVarAndValue xcppCfgCompilerOptions
+	EchoVarAndValue xcppCfgVerbose
+	EchoVarAndValue xcppCfgBoost
+	EchoVarAndValue xcppCfgLocale
+}
+
+#------------------------------------------------------------------------------
+LoadConfig () {
+	if [[ -f "$xcppUserConfig" ]]; then
+		LoadConfigFile "$xcppUserConfig"
+	fi
+	if [[ -f "$xcppDirectoryConfig" ]]; then
+		LoadConfigFile "$xcppDirectoryConfig"
+	fi
+	
+	if [[ $xcppCfgVerbose -ne 0 ]]; then
+		PrintConfig
+	fi
+}
+
+#------------------------------------------------------------------------------
 Main() {
 	if [[ $# -lt 1 ]] || [[ $1 == "-h" ]] || [[ $1 == "--help" ]] || [[ $1 == "help" ]]; then
 		CmdPrintHelp
+		exit 0
 	elif [[ $1 == "-v" ]] || [[ $1 == "--version" ]] || [[ $1 == "version" ]]; then
 		PrintVersion
-	elif [[ $1 == "run" ]]; then
+	fi
+
+	LoadConfig
+
+	if [[ $1 == "run" ]]; then
 		CmdRun "$@"
 		exit $?
 	elif [[ $1 == "watch" ]]; then
