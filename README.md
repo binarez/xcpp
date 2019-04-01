@@ -2,8 +2,7 @@
 
 xcpp is convention over configuration for C++. It is a tool that lets you write, run, watch and build C++ code quickly and simply. xcpp stands for execute C++. It compiles and runs your code in a pre-configured environment: you just write C++. The xcpp environment preincludes all C++ Standard Library headers and it is "using namespace std;" all of it for you. In addition to having all the std namespace ready to use, xcpp provides extra basic functions and types to simplify your C++ development, like simplified handling of i/o streams errors (print and read functions), string manipulations (trim, rtrim, ltrim, concat, concat_range) and new algorithms like purge and purge_if algorithms (purge is erase–remove, a well-known C++ idiom).
 
-xcpp can compile with g++ (or gcc) and clang. 
-xcpp stands for eXecute C++: a bash script that runs C++ source code quickly. xcpp is C++ in a preconfigured environnement in which . There are some downsides to using xcpp:  xcpp lets you write C++ code in a preconfigured environnement in which . xcpp is mainly built for quick, dirty and small programes. You can think of it as C++ scripting if you like. Remember that it is compiled. If you some code processing a lot of data, you will benefit from using xcpp because you will be running . If you are writing You do not have to worry about which part of STL to include: it is all included. Every single C++ standard library is preincluded . You are not permitted to define a main() function.
+xcpp can compile with g++ (or gcc) and clang. If your code is processing a lot of data, you will benefit from using xcpp because you will be running directly on the CPU in binary operations instead of being interpreted.
 
 # Install
 
@@ -31,7 +30,7 @@ With comments:
     . xcpp.sh "$0" "$@"     // All the previous lines are bash comments, now call the xcpp launcher.
     #endif
 
-After these 7 lines short lines, you are free to write xcpp C++ code and the xcpp tool will be able to run, watch, build and test that code.
+After these 7 lines, you are free to write xcpp C++ code and the xcpp tool will be able to run, watch, build and test that code.
 
 If you run a file named "filename.xcpp", the launcher compiles your source code and runs the function "filename". Command arguments are forwarded to your C++ code as strings to this function.
 
