@@ -54,15 +54,12 @@ To run, simply:
 
     xcpp run hello_world.xcpp
 
-To run, first make it executable:
+Another option: make it executable and then run it, just like a script.
 
     chmod +x ./hello_world.xcpp
-
-then run it:
-
     ./hello_world.xcpp
 
-The launcher will call the "hello" function, because the file is named hello.xcpp -- the extension doesn't matter.
+The launcher will call the "hello_world" function, because the file is named hello.xcpp -- the extension doesn't matter.
 
 # Example 2:  hello_you.xcpp
 
@@ -78,8 +75,14 @@ The launcher will call the "hello" function, because the file is named hello.xcp
     {
     	string name;
     	print( "What is you name? " );
-    	readln( name );
-    	println( "Hello, " + name + "!" );
+    	if( readln( name ) )
+		{
+			println( "Hello, " + name + "!" );
+		}
+		else
+		{
+			println( "I'm sorry, I didn't hear ya." );
+		}
     	return 0;
     }
 
