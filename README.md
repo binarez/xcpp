@@ -17,7 +17,7 @@ First, you create a text file (.xcpp extension recommended). The first 7 lines o
     #elif defined(__XCPP__)
     #pragma once
     #else
-    . xcpp.sh "$0" "$@"
+    . xcpp run "$0" "$@"
     #endif
 
 With comments:
@@ -27,7 +27,7 @@ With comments:
     #elif defined(__XCPP__) // Else if __XCPP__ is already defined, we're in header mode:
     #pragma once              // Prevent multi inclusion.
     #else                   // Else: this case is never true so it never reaches the C++ compiler.
-    . xcpp.sh "$0" "$@"     // All the previous lines are bash comments, now call the xcpp launcher.
+    . xcpp run "$0" "$@"     // All the previous lines are bash comments, now call the xcpp launcher.
     #endif
 
 After these 7 lines, you are free to write xcpp C++ code and the xcpp tool will be able to run, watch, build and test that code.
@@ -41,7 +41,7 @@ Here's the xcpp hello world example:
     #elif defined(__XCPP__)
     #pragma once
     #else
-    . xcpp.sh "$0" "$@"
+    . xcpp run "$0" "$@"
     #endif
     
     int hello_world( strings args )
@@ -68,7 +68,7 @@ The launcher will call the "hello_world" function, because the file is named hel
     #elif defined(__XCPP__)
     #pragma once
     #else
-    . xcpp.sh "$0" "$@"
+    . xcpp run "$0" "$@"
     #endif
     
     int hello_you( strings args )
