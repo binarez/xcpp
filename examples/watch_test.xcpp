@@ -8,10 +8,11 @@
 
 int watch_test( strings args )
 {
-	for( int i{ 1 }; i <= 10; ++i )
+	for( int i{ 1 }; i <= INT_MAX; ++i )
 	{
 		println(i);
 		sleep_ms(1000);
 	}
+
 	return 0;
 }

@@ -1,21 +1,23 @@
 #!/usr/bin/env bash
+
 # Copyright (C) 2018-2019 Stéphane Duguay <s@binarez.com>
 # This file may be used under the terms of the GNU General Public License, version 2 or later.
 # For more details see: https://www.gnu.org/licenses/gpl-2.0.html
 
-# xcpp run --locale="fr" --boost -- -O3 qweqwe.xcpp
-# xcpp run ~~clang ~~locale="fr" --*boost --options="-O3 -march=native" qweqwe.xcpp
+# xcpp run -c clang ~~locale="fr" --*boost --options="-O3 -march=native" qweqwe.xcpp
 
-# -h --help
-# --version
-# -c --compiler
-# -l --locale
-# -b --boost
-# -v --verbose
+# -h --help | show help
+# --version | prints version number at program startup
+# -c --compiler | select compiler
+# -L --locale
+# -n --noboost
+# -v --verbose	(
 # -m --mode (debug, release, custom, etc.)
-# -o --options
+# -o --options | compiler options
 # -f --force
-# -i --config
+# -C --config
+# -l --less
+# -q --quiet
 
 # xcpp config -> install to /usr/local/bin ou choix du path dans $PATH ou custom, choix compilateur
 # xcpp test -> automatically calls the test function of a .xcpp or .xhpp file
@@ -79,7 +81,7 @@ xcppIncludeFile=""
 xcppCfgCompiler="gcc"
 xcppCfgMode=""
 xcppCfgCompilerOptions=""
-xcppCfgVerbose=1
+xcppCfgVerbose=0
 xcppCfgBoost=0
 xcppCfgLocale=""
 
@@ -110,6 +112,21 @@ CreateTempFiles () {
 		xcppElfFile="$1"
 	fi
 	xcppIncludeFile=$(mktemp /tmp/xcpp.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.h)
+}
+
+#------------------------------------------------------------------------------
+# $1 the char
+# $2 number of times the char is repeated
+StringOfChar () {
+    local fillsize=$2
+    local fill=""
+	echo $fillsize
+    while [[ $fillsize -gt 0 ]]
+    do
+	    fill="$1${fill}"
+        ((fillsize=fillsize-1))
+    done
+	echo $fill
 }
 
 #------------------------------------------------------------------------------
@@ -198,9 +215,15 @@ using f64 = double;
 using f128 = __float128; // long double?
 
 template <typename T>
-auto str(T && val)
+inline std::string str(const T & val)
 {
-	return std::to_string(std::forward<T>(val));
+	return std::to_string(val);
+}
+
+template <std::size_t N>
+inline std::string str(const char (&val)[N])
+{
+	return std::string{ val };
 }
 
 template< typename T >
@@ -260,7 +283,7 @@ inline void to_lower( std::string & s )
 
 inline void to_upper( std::string & s )
 {
-	std::transform(s.begin(), s.end(), s.begin(), std::ptr_fun<int, int>(std::tolower));
+	std::transform(s.begin(), s.end(), s.begin(), std::ptr_fun<int, int>(std::toupper));
 }
 
 inline void newline( void )
@@ -448,14 +471,14 @@ CompileXcpp () {
 	local xcppFileName="$1"
 	local xcppFunctionName=$(ExtractFunctionName "$1")
 	if [[ $xcppCfgVerbose -ne 0 ]]; then
-		echo Compile command: $("xcpp_$xcppCfgCompiler")
-		echo "---"
+		echo Compiling: $("xcpp_$xcppCfgCompiler")
+		echo $(StringOfChar "-" 80)
 	else
 		echo -ne "Compiling with $xcppCfgCompiler"
 	fi
 	OutputXcppMainCpp "$xcppFunctionName" | $("xcpp_$xcppCfgCompiler")
 	local compilerRetVal=$?
-	echo -ne "\r                                                                                                     \r"
+	echo -ne "\r                                                                   \r"
 	return $compilerRetVal
 }
 
@@ -658,10 +681,6 @@ LoadConfig () {
 	if [[ -f "$xcppDirectoryConfig" ]]; then
 		LoadConfigFile "$xcppDirectoryConfig"
 	fi
-	
-	if [[ $xcppCfgVerbose -ne 0 ]]; then
-		PrintConfig
-	fi
 }
 
 #------------------------------------------------------------------------------
@@ -669,11 +688,13 @@ Main() {
 	if [[ $# -lt 1 ]] || [[ $1 == "-h" ]] || [[ $1 == "--help" ]] || [[ $1 == "help" ]]; then
 		CmdPrintHelp
 		exit 0
-	elif [[ $1 == "-v" ]] || [[ $1 == "--version" ]] || [[ $1 == "version" ]]; then
-		PrintVersion
 	fi
 
 	LoadConfig
+	if [[ $xcppCfgVerbose -ne 0 ]]; then
+		PrintVersion
+		PrintConfig
+	fi
 
 	if [[ $1 == "run" ]]; then
 		CmdRun "$@"

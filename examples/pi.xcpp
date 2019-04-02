@@ -6,20 +6,21 @@
 . xcpp run "$0" "$@"
 #endif
 
+// sz is size_t
 sz obtainIterations( void )
 {
 	int iters{ 0 };
 	do
 	{
-		print( "How many iterations to approximate pi? " );
+		print( "How many iterations to approximate pi? " );	// like cout without endl
 	}
-	while( !read( iters ) || iters <= 0 );
+	while( !read( iters ) || iters <= 0 );	// read is like cin
 	return (sz)iters;
 }
 
-// Gregory-Leibniz Series: https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80
 int pi( strings args )
 {
+	// Gregory-Leibniz Series: https://en.wikipedia.org/wiki/Leibniz_formula_for_%CF%80
 	const sz iterations{ obtainIterations() };
 	f64 piValue{ 0 };
 	int denominator{ 1 };
@@ -27,7 +28,7 @@ int pi( strings args )
 	for( sz i{ 0 }; i < iterations; ++i, denominator += 2, sign = -sign )
 	{
 		piValue += 4 * sign * (1.0 / denominator);
-		println(piValue);
+		println(piValue);	// print line: like cout with endl
 	}
 	return 0;
 }

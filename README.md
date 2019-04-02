@@ -56,7 +56,7 @@ To run, simply:
 
 Another option: make it executable and then run it, just like a script.
 
-    chmod +x ./hello_world.xcpp
+    chmod +x hello_world.xcpp
     ./hello_world.xcpp
 
 The launcher will call the "hello_world" function, because the file is named hello.xcpp -- the extension doesn't matter.
