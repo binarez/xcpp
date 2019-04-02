@@ -37,4 +37,5 @@ int guess( strings args )
 		}
 	} while( nbGuess != nb );
 	println( "Congratulations! It was " + str(nb) + '.' );
+	return 0;
 }
