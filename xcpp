@@ -470,7 +470,8 @@ CompileXcpp () {
 	local xcppFunctionName=$(ExtractFunctionName "$1")
 	if [[ $xcppCfgVerbose -ne 0 ]]; then
 		echo Compiling: $("xcpp_$xcppCfgCompiler")
-		echo $(StringOfChar "-" 80)
+		local termCols=$(tput cols)
+		echo $(StringOfChar "-" $termCols)
 	else
 		echo -ne "Compiling with $xcppCfgCompiler"
 	fi
@@ -690,6 +691,7 @@ Main() {
 
 	LoadConfig
 	if [[ $xcppCfgVerbose -ne 0 ]]; then
+		echo "Verbose enabled"
 		PrintVersion
 		PrintConfig
 	fi
