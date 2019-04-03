@@ -1,0 +1,22 @@
+#if !defined(__XCPP__)
+#define __XCPP__ 0
+#elif defined(__XCPP__)
+#pragma once
+#else
+. xcpp run "$0" "$@"
+#endif
+
+int purge( strings args )
+{
+	vector<int> v{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+	purge( v, 2 );
+	purge( v, 5 );
+	println_range( v );
+
+	list<int> l{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+	purge( l, 6 );
+	purge( l, 9 );
+	println_range( l );
+
+	return 0;
+}
