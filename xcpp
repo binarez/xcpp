@@ -14,7 +14,7 @@
 # -v --verbose	(
 # -m --mode (debug, release, custom, etc.)
 # -o --options | compiler options
-# -C --config-file
+# -f --config-file
 # -q --quiet
 # -r --reverse | reverse compiler output (bottom to top printout)
 
@@ -473,7 +473,7 @@ CompileXcpp () {
 	fi
 
 	set -o pipefail
-	if [[ $xcppOpt_reverse -ne 0 ]]; then
+	if OptEnabled reverse ; then
 		OutputXcppMainCpp "$xcppFunctionName" | $("xcpp_$xcppOpt_compiler") 2>&1 | tac
 	else
 		OutputXcppMainCpp "$xcppFunctionName" | $("xcpp_$xcppOpt_compiler")
