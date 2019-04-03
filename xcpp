@@ -51,6 +51,16 @@ xcppOpt_configfile=""
 xcppOpt_quiet=false
 xcppOpt_reverse=false
 
+#-------------------------------------------------------------------------------
+# $1 option name
+OptEnabled () {
+	local var="xcppOpt_$1";
+	if [[ ${!var} == "true" ]]; then
+		return 0;
+	fi
+	return 1;
+}
+
 #----[ Compilers setup ] ------------------------------------------------------------
 xcpp_g++ () {
 	echo g++ -fdiagnostics-color=always -pipe -xc++ $xcppOpt_options -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
@@ -454,11 +464,10 @@ ExtractFunctionName () {
 CompileXcpp () {
 	local xcppFileName="$1"
 	local xcppFunctionName=$(ExtractFunctionName "$1")
-	if $xcppOpt_verbose; then
-		local termCols=$(tput cols)
+	local termCols=$(tput cols)
+	if OptEnabled verbose ; then
 		echo $(StringOfChar "-" $termCols)
 		echo Compiling: $("xcpp_$xcppOpt_compiler")
-		echo $(StringOfChar "-" $termCols)
 	else
 		echo -ne "Compiling with $xcppOpt_compiler"
 	fi
@@ -471,6 +480,10 @@ CompileXcpp () {
 	fi
 	local compilerRetVal=$?
 	set -o pipefail
+
+	if OptEnabled verbose ; then
+		echo $(StringOfChar "-" $termCols)
+	fi
 
 	echo -ne "\r                                                                   \r"
 	return $compilerRetVal
@@ -772,16 +785,6 @@ XcppParseOptions () {
 
 	# Process
 	XcppProcessOptions $PARSED
-}
-
-#-------------------------------------------------------------------------------
-# $1 option name
-OptEnabled () {
-	local var="xcppOpt_$1";
-	if [[ ${!var} == "true" ]]; then
-		return 0;
-	fi
-	return 1;
 }
 
 #-------------------------------------------------------------------------------
