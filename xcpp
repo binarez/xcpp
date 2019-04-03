@@ -67,7 +67,7 @@ xcpp_clang_release () {
 
 #----[ Constants ] ------------------------------------------------------------
 readonly xcppVersion=0
-readonly xcppVersionRev=7
+readonly xcppVersionRev=8
 readonly xcppWatchDelay=1	# Seconds: 1.5 = 1500 ms
 readonly xcppUserConfig="~/.xcpp/xcpp.config"
 readonly xcppDirectoryConfig="./xcpp.config"
