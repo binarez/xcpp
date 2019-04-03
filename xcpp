@@ -1,22 +1,20 @@
 #!/usr/bin/env bash
 
-# Copyright (C) 2018-2019 Stéphane Duguay <s@binarez.com>
-# This file may be used under the terms of the GNU General Public License, version 2 or later.
-# For more details see: https://www.gnu.org/licenses/gpl-2.0.html
-
-# xcpp run -c clang ~~locale="fr" --*boost --options="-O3 -march=native" qweqwe.xcpp
+# Copyright (C) 2019 Stéphane Duguay <s@binarez.com>
+# This file and all the code it contains may only be used under the terms
+# of the GNU General Public License (GPL), version 2 or later.
+# The full text of the GPL version 2 license is available at:
+# https://www.gnu.org/licenses/gpl-2.0.html
 
 # -h --help | show help
 # --version | prints version number at program startup
 # -c --compiler | select compiler
-# -L --locale
-# -n --noboost
+# -l --locale
+# -b --boost
 # -v --verbose	(
 # -m --mode (debug, release, custom, etc.)
 # -o --options | compiler options
-# -f --force
-# -C --config
-# -l --less
+# -C --config-file
 # -q --quiet
 # -r --reverse | reverse compiler output (bottom to top printout)
 
@@ -28,7 +26,6 @@
 # Stop execution on error
 set -e
 
-
 #----[ Constants ] ------------------------------------------------------------
 readonly xcppVersion=0
 readonly xcppVersionRev=8
@@ -36,57 +33,61 @@ readonly xcppWatchDelay=1	# Seconds: 1.5 = 1500 ms
 readonly xcppUserConfig="~/.xcpp/xcpp.config"
 readonly xcppDirectoryConfig="./xcpp.config"
 
-#----[ Compilers setup ] ------------------------------------------------------------
-xcpp_g++ () {
-	echo g++ -fdiagnostics-color=always -pipe -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
-}
-
-xcpp_g++_debug () {
-	echo g++ -g -fdiagnostics-color=always -pipe -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
-}
-
-xcpp_g++_release () {
-	echo g++ -O3 -fdiagnostics-color=always -pipe -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
-}
-
-xcpp_gcc () {
-	echo gcc -fdiagnostics-color=always -pipe -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName -lstdc++
-}
-
-xcpp_gcc_debug () {
-	echo gcc -g -fdiagnostics-color=always -pipe -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName -lstdc++
-}
-
-xcpp_gcc_release () {
-	echo gcc -O3 -fdiagnostics-color=always -pipe -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName -lstdc++
-}
-
-xcpp_clang () {
-	echo clang -fdiagnostics-color=always -pipe -lstdc++ -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
-}
-
-xcpp_clang_debug () {
-	echo clang -g -fdiagnostics-color=always -pipe -lstdc++ -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
-}
-
-xcpp_clang_release () {
-	echo clang -O3 -fdiagnostics-color=always -pipe -lstdc++ -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
-}
-
 #----[ Variables ] ------------------------------------------------------------
-xcppCompilerUserOptions=""
-xcppExecutionArgIndex=1
+xcppSubCommand=""
 xcppElfFile=""
 xcppIncludeFile=""
 
 #----[ Config: default values ] -----------------------------------------------
-xcppCfgCompiler="gcc"
-xcppCfgMode=""
-xcppCfgCompilerOptions=""
-xcppCfgVerbose=0
-xcppCfgBoost=0
-xcppCfgLocale=""
-xcppCfgReverse=0
+xcppOpt_help=false
+xcppOpt_version=false
+xcppOpt_compiler="gcc"
+xcppOpt_locale=""
+xcppOpt_boost=""
+xcppOpt_verbose=false
+xcppOpt_mode=""
+xcppOpt_options=""
+xcppOpt_configfile=""
+xcppOpt_quiet=false
+xcppOpt_reverse=false
+
+#----[ Compilers setup ] ------------------------------------------------------------
+xcpp_g++ () {
+	echo g++ -fdiagnostics-color=always -pipe -xc++ $xcppOpt_options -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
+}
+
+xcpp_g++_debug () {
+	echo g++ -g -fdiagnostics-color=always -pipe -xc++ $xcppOpt_options -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
+}
+
+xcpp_g++_release () {
+	echo g++ -O3 -fdiagnostics-color=always -pipe -xc++ $xcppOpt_options -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
+}
+
+xcpp_gcc () {
+	echo gcc -fdiagnostics-color=always -pipe -xc++ $xcppOpt_options -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName -lstdc++
+}
+
+xcpp_gcc_debug () {
+	echo gcc -g -fdiagnostics-color=always -pipe -xc++ $xcppOpt_options -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName -lstdc++
+}
+
+xcpp_gcc_release () {
+	echo gcc -O3 -fdiagnostics-color=always -pipe -xc++ $xcppOpt_options -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName -lstdc++
+}
+
+xcpp_clang () {
+	echo clang -fdiagnostics-color=always -pipe -lstdc++ -xc++ $xcppOpt_options -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
+}
+
+xcpp_clang_debug () {
+	echo clang -g -fdiagnostics-color=always -pipe -lstdc++ -xc++ $xcppOpt_options -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
+}
+
+xcpp_clang_release () {
+	echo clang -O3 -fdiagnostics-color=always -pipe -lstdc++ -xc++ $xcppOpt_options -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
+}
+
 #-------------------------------------------------------------------------------
 ProcessXcppGccArgs () {
 	i=1;
@@ -94,7 +95,7 @@ ProcessXcppGccArgs () {
 	do
 		# If the argument starts with a -dash
 		if [[ "$arg" =~ ^-.* ]]; then
-			xcppGccUserOptions="$xcppGccUserOptions $arg"
+			xcppOpt_options="$xcppOpt_options $arg"
 		else
 			# We're done
 			xcppExecutionArgIndex=$i
@@ -470,19 +471,20 @@ ExtractFunctionName () {
 CompileXcpp () {
 	local xcppFileName="$1"
 	local xcppFunctionName=$(ExtractFunctionName "$1")
-	if [[ $xcppCfgVerbose -ne 0 ]]; then
-		echo Compiling: $("xcpp_$xcppCfgCompiler")
+	if $xcppOpt_verbose; then
 		local termCols=$(tput cols)
 		echo $(StringOfChar "-" $termCols)
+		echo Compiling: $("xcpp_$xcppOpt_compiler")
+		echo $(StringOfChar "-" $termCols)
 	else
-		echo -ne "Compiling with $xcppCfgCompiler"
+		echo -ne "Compiling with $xcppOpt_compiler"
 	fi
 
 	set -o pipefail
-	if [[ $xcppCfgReverse -ne 0 ]]; then
-		OutputXcppMainCpp "$xcppFunctionName" | $("xcpp_$xcppCfgCompiler") 2>&1 | tac
+	if [[ $xcppOpt_reverse -ne 0 ]]; then
+		OutputXcppMainCpp "$xcppFunctionName" | $("xcpp_$xcppOpt_compiler") 2>&1 | tac
 	else
-		OutputXcppMainCpp "$xcppFunctionName" | $("xcpp_$xcppCfgCompiler")
+		OutputXcppMainCpp "$xcppFunctionName" | $("xcpp_$xcppOpt_compiler")
 	fi
 	local compilerRetVal=$?
 	set -o pipefail
@@ -501,6 +503,8 @@ CmdRun () {
 		return
 	fi
 
+	echo "${@:2}"
+	exit
 	ProcessXcppGccArgs "${@:2}"
 	((xcppExecutionArgIndex++))
 
@@ -663,6 +667,11 @@ int $xcppFunctionName( strings args )
 # $1 Config file name
 LoadConfigFile () {
 . $1
+# https://unix.stackexchange.com/questions/260840/read-columns-from-file-into-separate-variables
+#while IFS=" " read -r value1 value2 remainder
+#do
+#    ...
+#done < "input.txt"	
 }
 
 #-------------------------------------------------------------------------------
@@ -673,13 +682,18 @@ EchoVarAndValue () {
 }
 #-------------------------------------------------------------------------------
 PrintConfig () {
-	EchoVarAndValue xcppCfgCompiler
-	type $"xcpp_$xcppCfgCompiler"
-	EchoVarAndValue xcppCfgMode
-	EchoVarAndValue xcppCfgCompilerOptions
-	EchoVarAndValue xcppCfgVerbose
-	EchoVarAndValue xcppCfgBoost
-	EchoVarAndValue xcppCfgLocale
+	EchoVarAndValue xcppOpt_configfile
+	EchoVarAndValue xcppOpt_compiler
+	type $"xcpp_$xcppOpt_compiler"
+	EchoVarAndValue xcppOpt_mode
+	EchoVarAndValue xcppOpt_options
+	EchoVarAndValue xcppOpt_boost
+	EchoVarAndValue xcppOpt_locale
+	EchoVarAndValue xcppOpt_verbose
+	EchoVarAndValue xcppOpt_quiet
+	EchoVarAndValue xcppOpt_reverse
+	EchoVarAndValue xcppOpt_help
+	EchoVarAndValue xcppOpt_version
 }
 
 #-------------------------------------------------------------------------------
@@ -693,26 +707,147 @@ LoadConfig () {
 }
 
 #-------------------------------------------------------------------------------
+# Returns 0 (success) if getopt is installed on the machine
+IsGetOptInstalled () {
+	! getopt --test > /dev/null 
+	if [[ ${PIPESTATUS[0]} -ne 4 ]]; then
+		return 1;
+	fi
+	return 0;
+}
+
+#-------------------------------------------------------------------------------
+# $@ : parsed arguments
+XcppProcessOptions () {
+	while true; do
+		case "$1" in
+			-h|--help)
+				xcppOpt_help=true
+				shift
+				;;
+			--version)
+				xcppOpt_version=true
+				shift
+				;;
+			-c|--compiler)
+				xcppOpt_compiler="$2"
+				shift 2
+				;;
+			-l|--locale)
+				xcppOpt_locale="$2"
+				shift 2
+				;;
+			-b|--boost)
+				xcppOpt_boost=true
+				shift
+				;;
+			-v|--verbose)
+				xcppOpt_verbose=true
+				shift
+				;;
+			-m|--mode)
+				xcppOpt_mode="$2"
+				shift 2
+				;;
+			-o|--options)
+				xcppOpt_options="$2"
+				shift 2
+				;;
+			-f|--config-file)
+				xcppOpt_configfile="$2"
+				shift 2
+				;;
+			-q|--quiet)
+				xcppOpt_quiet=true
+				shift
+				;;
+			-r|--reverse)
+				xcppOpt_reverse=true
+				shift
+				;;
+			--)
+				shift
+				break
+				;;
+			*)
+				echo "xcpp error: fatal error processing options."
+				exit 253
+				;;
+		esac
+	done
+	xcppSubCommand="$@"
+}
+
+#-------------------------------------------------------------------------------
+# $@ : arguments
+XcppParseOptions () {
+	local OPTIONS=hc:l:bvm:o:f:qr
+	local LONGOPTS=help,version,compiler:,locale:,boost,verbose,mode:,options:,config-file:,quiet,reverse
+
+	# -use ! and PIPESTATUS to get exit code with errexit set
+	# -temporarily store output to be able to check for errors
+	# -activate quoting/enhanced mode (e.g. by writing out “--options”)
+	# -pass arguments only via   -- "$@"   to separate them correctly
+	local PARSED=""
+	! PARSED=$(getopt -u --options=$OPTIONS --longoptions=$LONGOPTS --name "xcpp error" -- "$@")
+	if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
+		# error: getopt has complained about wrong arguments to stdout
+		exit 254
+	fi
+
+	# Process
+	XcppProcessOptions $PARSED
+}
+
+#-------------------------------------------------------------------------------
+# $1 option name
+OptEnabled () {
+	local var="xcppOpt_$1";
+	if [[ ${!var} == "true" ]]; then
+		return 0;
+	fi
+	return 1;
+}
+
+#-------------------------------------------------------------------------------
+# $@ : arguments
 Main() {
+	# Help
 	if [[ $# -lt 1 ]] || [[ $1 == "-h" ]] || [[ $1 == "--help" ]] || [[ $1 == "help" ]]; then
 		CmdPrintHelp
 		exit 0
 	fi
 
+	# Options
 	LoadConfig
-	if [[ $xcppCfgVerbose -ne 0 ]]; then
-		echo "Verbose enabled"
-		PrintVersion
-		PrintConfig
+	if IsGetOptInstalled; then
+		XcppParseOptions "$@"
+	else
+		echo "xcpp warning: bash-getopt not available. Cannot parse options, running with default configuration. Please do not specify options."
+		xcppSubCommand="$@"
 	fi
 
+	# Version
+	if OptEnabled version || OptEnabled verbose; then
+		PrintVersion
+	fi
+
+	if OptEnabled verbose ; then
+		echo "Verbose activated"
+		echo "Options parsed, remaining: $xcppSubCommand"
+		PrintConfig
+	fi
+	
+	set -- $xcppSubCommand
+
+	# Run sub-command
 	if [[ $1 == "run" ]]; then
-		CmdRun "$@"
+		CmdRun $@
 		exit $?
 	elif [[ $1 == "watch" ]]; then
-		CmdWatch "$@"
+		CmdWatch $@
 	elif [[ $1 == "build" ]]; then
-		CmdBuild "$@"
+		CmdBuild $@
 		exit $?
 	elif [[ $1 == "new" ]]; then
 		CmdNewXcppFiles "${@:2}"
@@ -723,9 +858,10 @@ Main() {
 	else
 		echo "xcpp error: unknown subcommand ($1)"
 		echo "try 'xcpp help'"
-		exit 42
+		exit 255
 	fi
 }
 
+# Boot
 Main "$@"
 exit 0
