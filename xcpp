@@ -89,23 +89,6 @@ xcpp_clang_release () {
 }
 
 #-------------------------------------------------------------------------------
-ProcessXcppGccArgs () {
-	i=1;
-	for arg in "$@"
-	do
-		# If the argument starts with a -dash
-		if [[ "$arg" =~ ^-.* ]]; then
-			xcppOpt_options="$xcppOpt_options $arg"
-		else
-			# We're done
-			xcppExecutionArgIndex=$i
-			return
-		fi
-		((i=i+1))
-	done
-	xcppExecutionArgIndex=1
-}
-#-------------------------------------------------------------------------------
 # [$1] optional : elf file name
 CreateTempFiles () {
 	if [[ -z $1 ]]; then
@@ -503,22 +486,17 @@ CmdRun () {
 		return
 	fi
 
-	echo "${@:2}"
-	exit
-	ProcessXcppGccArgs "${@:2}"
-	((xcppExecutionArgIndex++))
-
 	CreateTempFiles
 	# Trap exit for temp files removal and processes termination
 	trap "{ rm -f $xcppElfFile; rm -f $xcppIncludeFile; kill 0; }" EXIT
 	GenerateXcppHeader $xcppIncludeFile
 
-	CompileXcpp "${!xcppExecutionArgIndex}"
+	CompileXcpp "$2"
 	if [[ $? -eq 0 ]]; then
 		if [[ $1 == "runbg" ]]; then
-			xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:$xcppExecutionArgIndex}" &
+			xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:2}" &
 		else
-			xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:$xcppExecutionArgIndex}"
+			xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:2}"
 		fi
 		return $xcppExitCode
 	else
@@ -543,15 +521,12 @@ CmdBuild () {
 		elfToBuild="$elfToBuild/$(basename "$2").out"
 	fi
 
-	ProcessXcppGccArgs "${@:2}"
-	((xcppExecutionArgIndex++))
-
 	CreateTempFiles "$elfToBuild"
 	# Trap exit for temp files removal and processes termination
 	trap "{ rm -f $xcppIncludeFile; }" EXIT
 	GenerateXcppHeader $xcppIncludeFile
 
-	CompileXcpp "${!xcppExecutionArgIndex}"
+	CompileXcpp "$1"
 }
 
 #-------------------------------------------------------------------------------
