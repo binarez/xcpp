@@ -9,10 +9,6 @@
 // Prints all command arguments
 int args( strings arguments )
 {
-	char test[10]= "456";
-	string c = "abc" + str(test) + str("!!") + str(3);
-	println(c);
-
     for( sz i{ 0 }; i < arguments.size(); ++i )
     {
 		println( "args[", i, "] ", arguments[i] );
