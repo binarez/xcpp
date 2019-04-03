@@ -28,6 +28,14 @@
 # Stop execution on error
 set -e
 
+
+#----[ Constants ] ------------------------------------------------------------
+readonly xcppVersion=0
+readonly xcppVersionRev=8
+readonly xcppWatchDelay=1	# Seconds: 1.5 = 1500 ms
+readonly xcppUserConfig="~/.xcpp/xcpp.config"
+readonly xcppDirectoryConfig="./xcpp.config"
+
 #----[ Compilers setup ] ------------------------------------------------------------
 xcpp_g++ () {
 	echo g++ -fdiagnostics-color=always -pipe -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
@@ -64,13 +72,6 @@ xcpp_clang_debug () {
 xcpp_clang_release () {
 	echo clang -O3 -fdiagnostics-color=always -pipe -lstdc++ -xc++ $xcppGccUserOptions -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
 }
-
-#----[ Constants ] ------------------------------------------------------------
-readonly xcppVersion=0
-readonly xcppVersionRev=8
-readonly xcppWatchDelay=1	# Seconds: 1.5 = 1500 ms
-readonly xcppUserConfig="~/.xcpp/xcpp.config"
-readonly xcppDirectoryConfig="./xcpp.config"
 
 #----[ Variables ] ------------------------------------------------------------
 xcppCompilerUserOptions=""
