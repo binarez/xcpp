@@ -61,6 +61,13 @@ OptEnabled () {
 	return 1;
 }
 
+#-------------------------------------------------------------------------------
+# UnQuote string
+UnQuote () {
+	IFS="''" read _ stringVal _ <<<"$1"
+	echo "$stringVal"
+}
+
 #----[ Compilers setup ] ------------------------------------------------------------
 xcpp_g++ () {
 	echo g++ -fdiagnostics-color=always -pipe -xc++ $xcppOpt_options -include $xcppIncludeFile -o $xcppElfFile /dev/stdin $xcppFileName
@@ -398,7 +405,7 @@ inline bool readln( std::string & val )
 	return sreadln( std::cin, val );
 }
 
-inline void press_enter()
+inline void press_enter( void )
 {
 	print(\"Press Enter to continue...\");
 	std::cin.get();
@@ -469,7 +476,7 @@ CompileXcpp () {
 		echo $(StringOfChar "-" $termCols)
 		echo Compiling: $("xcpp_$xcppOpt_compiler")
 	else
-		echo -ne "Compiling with $xcppOpt_compiler"
+		echo -ne "Compiling with $xcppOpt_compiler "
 	fi
 
 	set -o pipefail
@@ -502,14 +509,16 @@ CmdRun () {
 	CreateTempFiles
 	# Trap exit for temp files removal and processes termination
 	trap "{ rm -f $xcppElfFile; rm -f $xcppIncludeFile; kill 0; }" EXIT
-	GenerateXcppHeader $xcppIncludeFile
+	GenerateXcppHeader "$xcppIncludeFile"
 
-	CompileXcpp "$2"
+	CompileXcpp $(UnQuote "$2")
 	if [[ $? -eq 0 ]]; then
-		if [[ $1 == "runbg" ]]; then
-			xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:2}" &
+		if [[ $(UnQuote "$1") == "runbg" ]]; then
+			eval ExecuteXcppBinary "$xcppElfFile" "${@:2}" &
+			xcppExitCode=$?
 		else
-			xcppExitCode=ExecuteXcppBinary "$xcppElfFile" "${@:2}"
+			eval ExecuteXcppBinary "$xcppElfFile" "${@:2}"
+			xcppExitCode=$?
 		fi
 		return $xcppExitCode
 	else
@@ -527,19 +536,19 @@ CmdBuild () {
 		HelpBuild
 		return
 	fi
-	local elfToBuild="$3"
+	local elfToBuild=$(UnQuote "$3")
 	if [[ -z "$elfToBuild" ]]; then
-		elfToBuild="./$(basename "$2").out"
+		elfToBuild="./$(basename $(UnQuote "$2")).out"
 	elif [[ -d "$elfToBuild" ]]; then
-		elfToBuild="$elfToBuild/$(basename "$2").out"
+		elfToBuild="$elfToBuild/$(basename $(UnQuote "$2")).out"
 	fi
 
 	CreateTempFiles "$elfToBuild"
 	# Trap exit for temp files removal and processes termination
 	trap "{ rm -f $xcppIncludeFile; }" EXIT
-	GenerateXcppHeader $xcppIncludeFile
+	GenerateXcppHeader "$xcppIncludeFile"
 
-	CompileXcpp "$1"
+	CompileXcpp $(UnQuote "$1")
 }
 
 #-------------------------------------------------------------------------------
@@ -602,12 +611,12 @@ CmdWatch () {
 		return
 	fi
 	set +e
-	local lastHash=`sha256sum "$2"`
+	local lastHash=`sha256sum $(UnQuote "$2")`
 	CmdRun runbg "${@:2}"
 	local watchedPID=$!
 	while true; do
 	  sleep $xcppWatchDelay
-	  local newHash=`sha256sum "$2"`
+	  local newHash=`sha256sum $(UnQuote "$2")`
 	  if [ "$newHash" != "$lastHash" ]; then
 		clear
 		disown &> /dev/null
@@ -777,7 +786,7 @@ XcppParseOptions () {
 	# -activate quoting/enhanced mode (e.g. by writing out “--options”)
 	# -pass arguments only via   -- "$@"   to separate them correctly
 	local PARSED=""
-	! PARSED=$(getopt -u --options=$OPTIONS --longoptions=$LONGOPTS --name "xcpp error" -- "$@")
+	! PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "xcpp error" -- "$@")
 	if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
 		# error: getopt has complained about wrong arguments to stdout
 		exit 254
@@ -810,31 +819,33 @@ Main() {
 		PrintVersion
 	fi
 
+	# Verbose
 	if OptEnabled verbose ; then
 		echo "Verbose activated"
 		echo "Options parsed, remaining: $xcppSubCommand"
 		PrintConfig
 	fi
-	
+
 	set -- $xcppSubCommand
 
 	# Run sub-command
-	if [[ $1 == "run" ]]; then
-		CmdRun $@
+	local subCommand=$(UnQuote "$1")
+	if [[ $subCommand == "run" ]]; then
+		CmdRun "$@"
 		exit $?
-	elif [[ $1 == "watch" ]]; then
-		CmdWatch $@
-	elif [[ $1 == "build" ]]; then
-		CmdBuild $@
+	elif [[ $subCommand == "watch" ]]; then
+		CmdWatch "$@"
+	elif [[ $subCommand == "build" ]]; then
+		CmdBuild "$@"
 		exit $?
-	elif [[ $1 == "new" ]]; then
+	elif [[ $subCommand == "new" ]]; then
 		CmdNewXcppFiles "${@:2}"
-	elif [[ $1 == "export" ]]; then
+	elif [[ $subCommand == "export" ]]; then
 		CmdExportCpp "${@:2}"
-	elif [[ $1 == "export_h" ]]; then
+	elif [[ $subCommand == "export_h" ]]; then
 		CmdExportHeader "${@:2}"
 	else
-		echo "xcpp error: unknown subcommand ($1)"
+		echo "xcpp error: unknown subcommand $subCommand"
 		echo "try 'xcpp help'"
 		exit 255
 	fi
