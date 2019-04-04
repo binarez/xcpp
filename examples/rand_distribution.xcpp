@@ -1,0 +1,53 @@
+#if !defined(__XCPP__)
+#define __XCPP__ 0
+#elif defined(__XCPP__)
+#pragma once
+#else
+. xcpp run "$0" "$@"
+#endif
+
+const size_t DISTROSIZE = 50;
+const size_t NUM_PICKED = 640;
+
+int rand_distribution( strings args )
+{
+	seed_rand();
+
+	string entree;
+	do
+	{
+		size_t pickedCounts[DISTROSIZE]{ 0 };
+
+		// Fill array with random values
+		for (size_t i = 0; i < NUM_PICKED; ++i)
+			pickedCounts[rand() % DISTROSIZE]++;
+
+		// Draw
+		const size_t maximum{ * max_element(pickedCounts, pickedCounts + DISTROSIZE) };
+		cout << endl;
+		cout << "Distribution of " << NUM_PICKED << " integers generated with rand() in the range [0," << (DISTROSIZE - 1) << ']' << endl << endl;
+		for (size_t ligne = 1; ligne <= maximum; ++ligne)
+		{
+			const size_t y = maximum - ligne + 1;
+			cout << setw(2) << right << y << ' ';
+			for (size_t n = 0; n < DISTROSIZE; ++n)
+			{
+				cout << ((pickedCounts[n] >= y) ? '*' : ' ') << ' ';
+			}
+			cout << setw(2) << left << y << endl;
+		}
+
+		// Draw x-axis at the bottom
+		cout << "   ";
+		for (size_t i = 0; i < DISTROSIZE; i++)
+			cout << (i % 10) << ' ';
+		cout << endl << "   ";
+		for (size_t i = 0; i < DISTROSIZE / 10; i++)
+			cout << i << "                   ";
+		cout << endl;
+
+		cout << "Press ENTER to continue or 'q' to quit: ";
+	} while( readln( entree ) && (to_lower(entree), entree != "q") );
+
+	return 0;
+}
