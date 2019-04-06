@@ -6,22 +6,26 @@
 # The full text of the GPL version 2 license is available at:
 # https://www.gnu.org/licenses/gpl-2.0.html
 
+# --OPTIONS--
 # -h --help | show help
 # --version | prints version number at program startup
 # -c --compiler | select compiler
 # -l --locale
 # -b --boost
-# -v --verbose	(
+# -v --verbose
 # -m --mode (debug, release, custom, etc.)
 # -o --options | compiler options
 # -f --config-file
 # -q --quiet
 # -r --reverse | reverse compiler output (bottom to top printout)
 
+# --TODO--
 # xcpp config -> install to /usr/local/bin ou choix du path dans $PATH ou custom, choix compilateur
 # xcpp test -> automatically calls the test function of a .xcpp or .xhpp file
 # xcpp info
 # xcpp show FILE.xhpp or FILE.xcpp -> prints the first comment in the source file
+
+# --CODE--
 
 # Stop execution on error
 set -e
@@ -64,8 +68,15 @@ OptEnabled () {
 #-------------------------------------------------------------------------------
 # UnQuote string
 UnQuote () {
-	IFS="''" read _ stringVal _ <<<"$1"
-	echo "$stringVal"
+	if [[ $1 == \'*\' ]]; then
+		if [[ ${#1} -gt 2 ]]; then
+			local IFS="''"
+			read _ stringVal _ <<<"$1"
+			echo "$stringVal"
+		fi
+	else
+		echo "$1"
+	fi
 }
 
 #----[ Compilers setup ] ------------------------------------------------------------
@@ -454,8 +465,13 @@ int main(int _xcpp_reserved_argc_, const char * _xcpp_reserved_argv_[])
 
 #-------------------------------------------------------------------------------
 ExecuteXcppBinary () {
-	chmod +x "$1"	# Make executable
-	"$1" "${@:2}"	# Execute
+	chmod +x "$2"	# Make executable
+	# Execute
+	if [[ $(UnQuote "$1") == "runbg" ]]; then
+		"$2" "${@:3}" &
+	else
+		"$2" "${@:3}"
+	fi
 	return $?
 }
 
@@ -475,7 +491,7 @@ CompileXcpp () {
 	if OptEnabled verbose ; then
 		echo $(StringOfChar "-" $termCols)
 		echo Compiling: $("xcpp_$xcppOpt_compiler")
-	else
+	elif ! OptEnabled quiet ; then
 		echo -ne "Compiling with $xcppOpt_compiler "
 	fi
 
@@ -513,17 +529,9 @@ CmdRun () {
 
 	CompileXcpp $(UnQuote "$2")
 	if [[ $? -eq 0 ]]; then
-		if [[ $(UnQuote "$1") == "runbg" ]]; then
-			eval ExecuteXcppBinary "$xcppElfFile" "${@:2}" &
-			xcppExitCode=$?
-		else
-			eval ExecuteXcppBinary "$xcppElfFile" "${@:2}"
-			xcppExitCode=$?
-		fi
-		return $xcppExitCode
-	else
-		return $?
+		eval ExecuteXcppBinary $(UnQuote "$1") "$xcppElfFile" "${@:2}"
 	fi
+	return $?
 }
 
 #-------------------------------------------------------------------------------
@@ -548,12 +556,13 @@ CmdBuild () {
 	trap "{ rm -f $xcppIncludeFile; }" EXIT
 	GenerateXcppHeader "$xcppIncludeFile"
 
-	CompileXcpp $(UnQuote "$1")
+	CompileXcpp $(UnQuote "$2")
 }
 
 #-------------------------------------------------------------------------------
 # [$1] Header file to produce (output): defaults to xcpp.h if not specified
 CmdExportHeader () {
+	set -- $(UnQuote "$1")
 	if [[ $# -lt 1 ]]; then
 		set -- xcpp.h
 		echo xcpp.h
@@ -574,6 +583,7 @@ CmdExportHeader () {
 # $1 xcpp file (input)
 # $2 cpp file (output)
 CmdExportCpp () {
+	set -- $(UnQuote "$1") $(UnQuote "$2")
 	if [[ $# -ne 2 ]]; then
 		HelpExportCpp
 		return
@@ -610,13 +620,17 @@ CmdWatch () {
 		HelpWatch
 		return
 	fi
+	# Enabling parts of the watch jobs to fail
+	# Example: the compiler failing to compile because of a syntax error.
 	set +e
-	local lastHash=`sha256sum $(UnQuote "$2")`
+
+	local file=$(UnQuote "$2")
+	local lastHash=$(sha256sum $file)
 	CmdRun runbg "${@:2}"
 	local watchedPID=$!
 	while true; do
 	  sleep $xcppWatchDelay
-	  local newHash=`sha256sum $(UnQuote "$2")`
+	  local newHash=$(sha256sum $file)
 	  if [ "$newHash" != "$lastHash" ]; then
 		clear
 		disown &> /dev/null
@@ -637,6 +651,7 @@ CmdNewXcppFiles () {
 
 	for file in "$@"
 	do
+		file=$(UnQuote "$file")
 		if [[ -f "$file" ]]; then
 			echo xcpp error: \""$file"\" already exists, not overwriting.
 			continue
@@ -776,6 +791,14 @@ XcppProcessOptions () {
 }
 
 #-------------------------------------------------------------------------------
+# No param
+XcppCheckOptions () {
+	if OptEnabled quiet && OptEnabled verbose; then
+		echo "xcpp warning: quiet and verbose options set, ignoring quiet."
+	fi
+}
+
+#-------------------------------------------------------------------------------
 # $@ : arguments
 XcppParseOptions () {
 	local OPTIONS=hc:l:bvm:o:f:qr
@@ -818,6 +841,8 @@ Main() {
 	if OptEnabled version || OptEnabled verbose; then
 		PrintVersion
 	fi
+
+	XcppCheckOptions
 
 	# Verbose
 	if OptEnabled verbose ; then
