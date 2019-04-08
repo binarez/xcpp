@@ -59,10 +59,12 @@ xcppOpt_reverse=false
 # $1 option name
 OptEnabled () {
 	local var="xcppOpt_$1";
-	if [[ ${!var} == "true" ]]; then
-		return 0;
+	if [[ -z ${!var} ]]; then
+		return 1;	# false
+	elif [[ ${!var} == "false" ]]; then
+		return 1;
 	fi
-	return 1;
+	return 0;	# true
 }
 
 #-------------------------------------------------------------------------------
@@ -447,18 +449,16 @@ using namespace std;
 
 #-------------------------------------------------------------------------------
 OutputXcppMainCpp () {
-	echo "\
-
+	echo "
+#include <clocale>
 #include <vector>
 #include <string>
-/* #include <clocale> */
 
 int main(int _xcpp_reserved_argc_, const char * _xcpp_reserved_argv_[])
 {
-	/* setlocale( LC_ALL, \"\" ); */
-	int $1( std::vector<std::string> );
-	return $1( std::vector<std::string>(_xcpp_reserved_argv_ + 1,
-										_xcpp_reserved_argv_ + _xcpp_reserved_argc_) );
+    setlocale( LC_ALL, \"$(UnQuote $xcppOpt_locale)\" );
+    int $1( std::vector<std::string> );
+    return $1( std::vector<std::string>(_xcpp_reserved_argv_ + 1, _xcpp_reserved_argv_ + _xcpp_reserved_argc_) );
 }\
 "
 }
